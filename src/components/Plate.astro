@@ -1,0 +1,21 @@
+---
+import { withBase } from '../lib/url';
+interface Props { num: number; src: string; caption: string; alt: string; wide?: boolean; eager?: boolean }
+const { num, src, caption, alt, wide = false, eager = false } = Astro.props;
+const id = `pl-${String(num).padStart(2, '0')}`;
+---
+<figure class:list={['plate', { wide }]} data-plate aria-labelledby={id}>
+  <div class="frame">
+    <img src={withBase(src)} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+  </div>
+  <figcaption class="mono-label" id={id}>
+    <span class="accent">PL. {String(num).padStart(2, '0')}</span> — {caption}
+  </figcaption>
+</figure>
+<style>
+  .plate{margin:2.2em 0;}
+  .frame{border:1px solid var(--ink);padding:10px;background:#fff;}
+  figcaption{margin-top:10px;letter-spacing:.1em;color:#55534b;}
+  .wide{margin-inline:calc(-1*clamp(0px,6vw,120px));}
+  @media (max-width:900px){ .wide{margin-inline:0;} }
+</style>
