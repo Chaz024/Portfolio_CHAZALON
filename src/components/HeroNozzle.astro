@@ -17,11 +17,12 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (canvas && slider && out) {
     const sim = new NozzleSim(canvas);
-    const draw = () => { sim.Me = parseFloat(slider.value); out.textContent = sim.Me.toFixed(2); };
+    const draw = () => { sim.Me = parseFloat(slider.value); out.textContent = sim.Me.toFixed(2); if (reduced) sim.renderFrame(); };
     slider.addEventListener('input', draw); draw();
-    if (!reduced) sim.start(); else { sim.start(); setTimeout(() => sim.stop(), 50); } // 1 frame = image fixe
-    addEventListener('resize', () => sim.resize());
-    document.addEventListener('astro:before-swap', () => sim.stop(), { once: true });
+    if (!reduced) sim.start(); else sim.renderFrame();
+    const onResize = () => { sim.resize(); if (reduced) sim.renderFrame(); };
+    addEventListener('resize', onResize);
+    document.addEventListener('astro:before-swap', () => { sim.stop(); removeEventListener('resize', onResize); }, { once: true });
   }
 </script>
 <style>
