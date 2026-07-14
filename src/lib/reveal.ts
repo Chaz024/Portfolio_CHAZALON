@@ -21,11 +21,18 @@ export function initMotion(): void {
 export function initCurtain(): void {
   const c = document.querySelector<HTMLElement>('.curtain');
   if (!c || reduced()) return;
+  // astro:page-load tire AUSSI au chargement initial (pas astro:before-preparation) :
+  // sans ce garde, le rideau flasherait plein écran à chaque première visite.
+  let entered = false;
   document.addEventListener('astro:before-preparation', () => {
-    animate(c, { transform: ['translateY(101%)', 'translateY(0%)'] }, { duration: 0.28, ease: [0.4, 0, 0.2, 1] });
+    entered = true;
+    // keyframe unique : part de la position courante (pas de snap si navigation rapide)
+    animate(c, { transform: 'translateY(0%)' }, { duration: 0.28, ease: [0.4, 0, 0.2, 1] });
   });
   document.addEventListener('astro:page-load', () => {
-    animate(c, { transform: ['translateY(0%)', 'translateY(-101%)'] }, { duration: 0.32, ease: [0.4, 0, 0.2, 1] })
+    if (!entered) return;
+    entered = false;
+    animate(c, { transform: 'translateY(-101%)' }, { duration: 0.32, ease: [0.4, 0, 0.2, 1] })
       .finished.then(() => { c.style.transform = 'translateY(101%)'; });
   });
 }

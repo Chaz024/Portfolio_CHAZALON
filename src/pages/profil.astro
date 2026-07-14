@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/url';
+---
+<Base title="Profil — Hugo Chazalon" description="Parcours, compétences et méthode de travail : CPGE, ENSEEIHT MF2E, simulation numérique des écoulements.">
+  <section class="wrap head"><h1 class="display" style="font-size:var(--t-giant);">Profil</h1></section>
+  <section class="wrap g12">
+    <div class="prose" style="grid-column:1/8;">
+      <h2>Démarche</h2>
+      <p>Du <strong>modèle physique</strong> au <strong>code qui tourne</strong> : discrétisation (volumes finis,
+      Lattice Boltzmann), implémentation (Python, Fortran, MATLAB), parallélisation (MPI, GPU), simulations
+      OpenFOAM/Fluent, puis post-traitement et restitution. Chaque étude de ce site est validée contre des
+      solutions de référence et documentée dans un rapport téléchargeable.</p>
+      <h2>Parcours</h2>
+      <ul>
+        <li><strong>2023 → 2026 — ENSEEIHT, Toulouse.</strong> Filière Mécanique des Fluides, Énergies &amp; Environnement (MF2E).</li>
+        <li><strong>2021 → 2023 — CPGE.</strong> TIPE expérimental : amortisseur à masse accordée sur table à séismes (étude 14).</li>
+      </ul>
+      <h2>Annexe — communication scientifique</h2>
+      <p>Poster scientifique en anglais (étude soufflerie du peloton) :
+        <a href={withBase('/pdf/peloton-poster.pdf')} download>télécharger le poster (PDF · 7,4 Mo)</a>.</p>
+      <h2>Hors du calcul</h2>
+      <p>Triathlon, musculation, voyages, cinéma — l'endurance et la régularité ne sont pas que numériques.</p>
+    </div>
+    <aside class="mono-label side" style="grid-column:9/13;">
+      <div><span class="k accent">Méthodes numériques</span>Volumes finis &amp; différences finies · LBM (D2Q4/5/9) · VLM &amp; méthode des images · Jacobi, schémas explicites (CFL) · Euler, RK2-SSP, RK4</div>
+      <div><span class="k accent">Simulation &amp; CFD</span>OpenFOAM (ALE) · Ansys Fluent · ParaView · XFLR5 · MPI &amp; GPU (CALMIP/Turpan)</div>
+      <div><span class="k accent">Langages &amp; restitution</span>Python (NumPy, Matplotlib, Fiji) · MATLAB · Fortran 90 · LaTeX · CAO &amp; impression 3D</div>
+    </aside>
+  </section>
+</Base>
+<style>
+  .head{padding-block:70px 20px;}
+  .side{display:grid;gap:26px;align-content:start;border-left:1px solid var(--rule);padding-left:22px;text-transform:none;letter-spacing:.05em;line-height:1.9;color:#55534b;}
+  .k{display:block;text-transform:uppercase;margin-bottom:8px;}
+  @media (max-width:900px){ .prose,.side{grid-column:1/-1!important;} .side{border-left:0;padding-left:0;} }
+</style>

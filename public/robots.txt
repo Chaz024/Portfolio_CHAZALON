@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap : remplacer par l'URL réelle une fois GitHub Pages actif
+# Sitemap: https://<user>.github.io/<repo>/sitemap-index.xml

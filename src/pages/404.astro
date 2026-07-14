@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/url';
+---
+<Base title="Feuille introuvable — Hugo Chazalon" description="Page introuvable.">
+  <section class="wrap" style="padding-block:140px;">
+    <p class="mono-label accent">ERREUR 404</p>
+    <h1 class="display" style="font-size:var(--t-giant);">Feuille<br />introuvable.</h1>
+    <p class="serif" style="margin-block:26px;">Cette planche n'existe pas dans la monographie.</p>
+    <a class="btn-ink" href={withBase('/')}>Retour à l'index</a>
+  </section>
+</Base>
