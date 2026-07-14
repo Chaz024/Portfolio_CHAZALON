@@ -5,8 +5,8 @@ cycle: "3A"
 periode: "2025 — 3ᵉ année"
 methods: ["Lattice Boltzmann", "Collision BGK & régularisée", "Sponge layers"]
 tools: ["Python", "NumPy", "Matplotlib"]
-metric: "Validé sur Couette, Poiseuille et cylindre ; sources mono→quadripolaires simulées"
-summary: "Un solveur fluide 2D écrit from scratch, de la diffusion pure aux sources acoustiques, validé cas par cas contre les solutions de référence."
+metric: "Validé sur Couette, Poiseuille et cavité entraînée ; sources mono→quadripolaires simulées"
+summary: "Un solveur fluide 2D écrit intégralement à la main, de la diffusion pure aux sources acoustiques, validé cas par cas contre les solutions de référence."
 pdf: "/pdf/aeroacoustique-lbm.pdf"
 pdfSize: "4,6 Mo"
 featured: true
@@ -35,10 +35,8 @@ Le solveur a été assemblé par couches successives, chacune validée avant la 
 
 ## Résultats
 
-- Validation quantitative contre les solutions de référence : **diffusion d'une gaussienne,
-  advection-diffusion, Couette, cavité entraînée (lid-driven), Poiseuille** (avec et sans
-  forçage volumique), dipôle de vortex contre une paroi, écoulement de von Kármán autour d'un
-  cylindre.
+- **Validation quantitative** contre les solutions de référence : diffusion d'une gaussienne, advection-diffusion, écoulements de Couette et de Poiseuille, cavité entraînée.
+- **Démonstration qualitative** : dipôle de vortex contre une paroi (vorticité secondaire) et allée de von Kármán derrière un cylindre.
 - Simulation de sources de pression **monopolaires, dipolaires et quadripolaires** ; l'expérience
   des fentes de Young a en revanche révélé des réflexions parasites aux bords du domaine.
 - Ces réflexions ont motivé l'introduction de **couches absorbantes (sponge layers)**, confirmant
