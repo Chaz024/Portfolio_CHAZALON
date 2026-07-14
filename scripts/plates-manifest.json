@@ -24,7 +24,7 @@
     "rect": [50, 494, 545, 642],
     "out": "cylindre-karman.webp",
     "caption": "Écoulement autour d'un cylindre — allée tourbillonnaire de von Kármán",
-    "alt": "Deux instantanés du champ de vorticité en aval d'un cylindre, montrant l'apparition puis le développement de tourbillons alternés formant une allée de von Kármán."
+    "alt": "Deux instantanés du champ de vitesse longitudinale u_x en aval d'un cylindre, montrant l'apparition puis le développement de tourbillons alternés formant une allée de von Kármán."
   },
   {
     "slug": "aeroacoustique-lbm",
