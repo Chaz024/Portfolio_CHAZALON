@@ -1,0 +1,34 @@
+---
+import { withBase } from '../lib/url';
+import { contact } from '../data/contact';
+const rev = new Date().toISOString().slice(0, 10);
+---
+<footer class="rule-top" id="contact">
+  <div class="wrap cart">
+    <div class="cell who">
+      <span class="display big">Hugo Chazalon</span>
+      <span class="mono-label">ENSEEIHT — MF2E · {contact.ville}</span>
+    </div>
+    <div class="cell"><span class="mono-label k">Contact</span>
+      <a class="mono-label" href={`mailto:${contact.email}`}>{contact.email}</a></div>
+    <div class="cell"><span class="mono-label k">Réseaux</span>
+      {contact.linkedin
+        ? <a class="mono-label" href={contact.linkedin} rel="noopener">LinkedIn ↗</a>
+        : <span class="mono-label muted">LinkedIn — bientôt</span>}
+      {contact.cvPath && <a class="mono-label" href={withBase(contact.cvPath)} download>CV (PDF) ↓</a>}</div>
+    <div class="cell"><span class="mono-label k">Colophon</span>
+      <span class="mono-label muted">RÉV. {rev} — Astro, sans template</span></div>
+  </div>
+</footer>
+<style>
+  footer{margin-top:120px;}
+  .cart{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;}
+  .cell{border-right:1px solid var(--rule);padding:26px 22px 26px 0;display:grid;gap:8px;align-content:start;}
+  .cell:last-child{border-right:0;}
+  .cell+.cell{padding-left:22px;}
+  .who .big{font-size:1.3rem;}
+  .k{color:var(--accent);}
+  .muted{color:#8a887f;}
+  a{text-decoration:underline;}
+  @media (max-width:820px){ .cart{grid-template-columns:1fr;} .cell{border-right:0;border-bottom:1px solid var(--rule);padding-left:0;} }
+</style>
