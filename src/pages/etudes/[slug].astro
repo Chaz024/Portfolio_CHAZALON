@@ -1,0 +1,60 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Plate from '../../components/Plate.astro';
+import { withBase } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const etudes = (await getCollection('etudes')).sort((a, b) => a.data.num - b.data.num);
+  return etudes.map((e, i) => ({
+    params: { slug: e.id.replace(/\.mdx$/, '') },
+    props: { e, prev: etudes[i - 1] ?? etudes[etudes.length - 1], next: etudes[(i + 1) % etudes.length] },
+  }));
+}
+const { e, prev, next } = Astro.props;
+const { Content } = await render(e);
+const d = e.data;
+const slugOf = (x: typeof e) => x.id.replace(/\.mdx$/, '');
+---
+<Base title={`${d.title} — Hugo Chazalon`} description={d.summary}>
+  <article>
+    <header class="wrap head">
+      <p class="mono-label"><span class="accent">Étude {String(d.num).padStart(2, '0')}/14</span> — {d.periode}</p>
+      <h1 class="display h">{d.title}</h1>
+      <dl class="mono-label specs rule-top">
+        <div><dt>Méthodes</dt><dd>{d.methods.join(' · ')}</dd></div>
+        <div><dt>Outils</dt><dd>{d.tools.join(' · ')}</dd></div>
+        <div><dt>Résultat clé</dt><dd class="accent">{d.metric}</dd></div>
+      </dl>
+    </header>
+    <div class="wrap g12">
+      <div class="prose art"><Content components={{ Plate }} /></div>
+      <aside class="side mono-label">
+        {d.plates.map((p, i) => <Plate num={i + 1} src={p.src} caption={p.caption} alt={p.alt} />)}
+      </aside>
+    </div>
+    <footer class="wrap foot rule-top">
+      {d.pdf
+        ? <a class="btn-ink" href={withBase(d.pdf)} download>Télécharger le rapport (PDF · {d.pdfSize})</a>
+        : <span class="mono-label">Travail dirigé — pas de rapport dédié ; méthodes détaillées ci-dessus.</span>}
+      <nav class="pn mono-label" aria-label="Autres études">
+        <a href={withBase(`/etudes/${slugOf(prev)}`)}>← {String(prev.data.num).padStart(2, '0')} {prev.data.title}</a>
+        <a href={withBase(`/etudes/${slugOf(next)}`)}>{String(next.data.num).padStart(2, '0')} {next.data.title} →</a>
+      </nav>
+    </footer>
+  </article>
+</Base>
+<style>
+  .head{padding-block:70px 30px;}
+  .h{font-size:clamp(1.9rem,4.6vw,3.4rem);max-width:22ch;margin-block:18px 30px;}
+  .specs{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding-top:18px;}
+  dt{color:#8a887f;margin-bottom:6px;}
+  dd{text-transform:none;letter-spacing:.04em;}
+  .art{grid-column:1/8;}
+  .side{grid-column:8/13;}
+  .foot{margin-top:70px;padding-top:30px;display:grid;gap:26px;justify-items:start;}
+  .pn{display:flex;justify-content:space-between;gap:20px;width:100%;flex-wrap:wrap;}
+  .pn a{text-decoration:none;color:#55534b;}
+  .pn a:hover{color:var(--accent);}
+  @media (max-width:900px){ .art,.side{grid-column:1/-1;} .specs{grid-template-columns:1fr;} }
+</style>
