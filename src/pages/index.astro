@@ -1,9 +1,68 @@
 ---
-// src/pages/index.astro (temporaire, remplacée au Task 9)
 import Base from '../layouts/Base.astro';
+import HeroNozzle from '../components/HeroNozzle.astro';
+import StudyIndex from '../components/StudyIndex.astro';
+import { contact } from '../data/contact';
+import { withBase } from '../lib/url';
 ---
-<Base title="Hugo Chazalon — Mécanique des fluides numérique" description="Portfolio d'ingénieur en simulation numérique des écoulements.">
-  <section class="wrap" style="padding-block:120px;">
-    <h1 class="display" style="font-size:var(--t-giant);">Monographie<br /><span class="accent">en chantier</span></h1>
+<Base
+  title="Hugo Chazalon — Mécanique des fluides numérique"
+  description="Portfolio d'étudiant-ingénieur ENSEEIHT (MF2E) : CFD, aéroacoustique, calcul haute performance. 14 études documentées, rapports téléchargeables."
+>
+  <section class="wrap hero">
+    <p class="mono-label kicker">Portfolio — Mécanique des fluides numérique <span class="accent">/ ENSEEIHT MF2E / {contact.ville}</span></p>
+    <h1 class="display giant" data-reveal-lines>
+      <span class="line"><span>Simuler</span></span>
+      <span class="line"><span>des écoulements,</span></span>
+      <span class="line"><span><em class="accent">prouver</em> des résultats.</span></span>
+    </h1>
+    <div class="g12 sub">
+      <p class="serif lead">Quatorze études documentées — solveurs écrits à la main, runs OpenFOAM &amp; Fluent,
+        calcul parallèle sur supercalculateur. Chaque résultat est validé, chiffré, et son rapport téléchargeable.</p>
+      <p class="mono-label toc">Aéroacoustique · LBM — 01<br/>Fluide-structure · OpenFOAM — 05<br/>HPC · MPI/GPU — 04<br/><a href="#etudes">Tout l'index ↓</a></p>
+    </div>
+    <HeroNozzle />
+  </section>
+
+  <section class="wrap" id="etudes" aria-labelledby="h-etudes">
+    <h2 class="display sec" id="h-etudes"><span class="accent">Index</span> des études <span class="count mono-label" data-counter="14">14</span></h2>
+    <StudyIndex />
+  </section>
+
+  <section class="wrap g12" id="profil-court" aria-labelledby="h-profil">
+    <div class="col-l">
+      <h2 class="display sec" id="h-profil">Profil</h2>
+      <p class="serif">Étudiant-ingénieur en 3ᵉ année à l'<strong>ENSEEIHT</strong> (Toulouse), filière
+        <strong>Mécanique des Fluides, Énergies &amp; Environnement</strong>. Du modèle physique au code qui
+        tourne : discrétisation, implémentation, validation, restitution. Obsession : des résultats
+        <strong>justes, validés, reproductibles</strong>.</p>
+      <a class="btn-ghost" href={withBase('/profil')}>Profil complet →</a>
+    </div>
+    <div class="col-r mono-label">
+      <span>Méthodes numériques — volumes finis, LBM, VLM, Jacobi/MPI</span>
+      <span>Simulation — OpenFOAM, Fluent, ParaView, XFLR5</span>
+      <span>Langages — Python, MATLAB, Fortran 90, LaTeX</span>
+    </div>
+  </section>
+
+  <section class="wrap cta" aria-label="Contact">
+    <h2 class="display giant2">Un stage, un sujet,<br/>un code à faire tourner ?</h2>
+    <a class="btn-ink" href={`mailto:${contact.email}`}>Écrire à Hugo</a>
   </section>
 </Base>
+<style>
+  .hero{padding-block:80px 40px;}
+  .kicker{margin-bottom:26px;}
+  .giant{font-size:var(--t-giant);max-width:14ch;}
+  .sub{margin-block:34px 44px;align-items:end;}
+  .lead{grid-column:1/8;font-size:1.08rem;}
+  .toc{grid-column:9/13;text-align:right;line-height:2.1;color:#55534b;}
+  .sec{font-size:var(--t-xl);margin-block:90px 30px;}
+  .count{color:var(--accent);vertical-align:super;}
+  #profil-court{align-items:start;}
+  .col-l{grid-column:1/8;display:grid;gap:22px;justify-items:start;}
+  .col-r{grid-column:9/13;display:grid;gap:14px;color:#55534b;border-left:1px solid var(--rule);padding-left:22px;text-transform:none;}
+  .cta{margin-top:120px;display:grid;gap:30px;justify-items:start;}
+  .giant2{font-size:clamp(2rem,5vw,3.6rem);}
+  @media (max-width:820px){ .lead,.toc,.col-l,.col-r{grid-column:1/-1;} .toc{text-align:left;} }
+</style>
