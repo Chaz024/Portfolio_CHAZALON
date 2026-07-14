@@ -1,0 +1,52 @@
+---
+num: 1
+title: "Aéroacoustique — solveur Lattice Boltzmann 2D"
+cycle: "3A"
+periode: "2025 — 3ᵉ année"
+methods: ["Lattice Boltzmann", "Collision BGK & régularisée", "Sponge layers"]
+tools: ["Python", "NumPy", "Matplotlib"]
+metric: "Validé sur Couette, Poiseuille et cylindre ; sources mono→quadripolaires simulées"
+summary: "Un solveur fluide 2D écrit from scratch, de la diffusion pure aux sources acoustiques, validé cas par cas contre les solutions de référence."
+pdf: "/pdf/aeroacoustique-lbm.pdf"
+pdfSize: "4,6 Mo"
+featured: true
+plates: []
+---
+
+## Contexte
+
+La méthode de Lattice Boltzmann simule un fluide non pas en discrétisant les équations de
+Navier-Stokes, mais en faisant évoluer des distributions de particules sur un réseau. Ce projet
+de 3ᵉ année consistait à construire un solveur LBM 2D **entièrement écrit à la main en Python**,
+jusqu'à la simulation de sources acoustiques.
+
+## Démarche
+
+Le solveur a été assemblé par couches successives, chacune validée avant la suivante :
+
+- opérateurs de **collision BGK** puis **régularisé**, streaming et reconstruction macroscopique ;
+- réseaux de vitesses **D2Q4, D2Q5 et D2Q9**, du transport scalaire aux équations de Navier-Stokes ;
+- conditions aux limites : parois **bounce-back** (halfway, puis full-way pour les géométries
+  complexes), entrées/sorties (profil imposé en entrée, gradient nul de Neumann en sortie),
+  **couches absorbantes** (sponge layers) pour limiter les réflexions parasites ;
+- étude de stabilité sur cas instationnaire (double couche de cisaillement, instabilité de
+  Kelvin-Helmholtz), qui met en évidence la limite de compressibilité du modèle BGK standard :
+  divergence numérique au-delà de Ma ≈ 0,4.
+
+## Résultats
+
+- Validation quantitative contre les solutions de référence : **diffusion d'une gaussienne,
+  advection-diffusion, Couette, cavité entraînée (lid-driven), Poiseuille** (avec et sans
+  forçage volumique), dipôle de vortex contre une paroi, écoulement de von Kármán autour d'un
+  cylindre.
+- Simulation de sources de pression **monopolaires, dipolaires et quadripolaires** ; l'expérience
+  des fentes de Young a en revanche révélé des réflexions parasites aux bords du domaine.
+- Ces réflexions ont motivé l'introduction de **couches absorbantes (sponge layers)**, confirmant
+  le rôle critique des conditions aux limites dans la propreté du champ acoustique.
+
+## Ce que ça démontre
+
+Capacité à **implémenter une méthode numérique de bout en bout** (pas seulement utiliser un code),
+à **valider systématiquement** contre des solutions analytiques tout en **identifiant ses limites**
+(stabilité, réflexions parasites), et à restituer proprement — le rapport complet est
+téléchargeable ci-dessous.
