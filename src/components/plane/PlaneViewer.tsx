@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { CameraControls, ContactShadows, Html } from '@react-three/drei';
+import { CameraControls, ContactShadows, Environment, Html, Lightformer } from '@react-three/drei';
 import PlaneModel from './PlaneModel';
 import InkReveal from './InkReveal';
 
@@ -76,9 +76,16 @@ function Scene({
 
   return (
     <>
-      <ambientLight intensity={0.95} />
-      <directionalLight position={[5, 8, 4]} intensity={1.15} />
-      <directionalLight position={[-6, 3, -4]} intensity={0.35} />
+      {/* studio procédural : softboxes → reflets sur la peinture vernie */}
+      <Environment resolution={256}>
+        <Lightformer intensity={3} rotation-x={Math.PI / 2} position={[0, 6, 0]} scale={[12, 12, 1]} />
+        <Lightformer intensity={1.6} rotation-y={Math.PI / 2} position={[-7, 1.5, 0]} scale={[14, 3, 1]} />
+        <Lightformer intensity={1.6} rotation-y={-Math.PI / 2} position={[7, 1.5, 0]} scale={[14, 3, 1]} />
+        <Lightformer intensity={0.9} color="#FFE7D6" rotation-y={Math.PI} position={[0, 2, -8]} scale={[10, 4, 1]} />
+        <Lightformer intensity={0.5} rotation-x={-Math.PI / 2} position={[0, -4, 0]} scale={[12, 12, 1]} />
+      </Environment>
+      <directionalLight position={[5, 8, 4]} intensity={0.8} />
+      <ambientLight intensity={0.25} />
       <PlaneModel
         active={active}
         hovered={hovered}
@@ -189,7 +196,7 @@ export default function PlaneViewer({ parts, whole }: Props) {
           </Suspense>
         </Canvas>
         <figcaption className="pv-caption mono-label">
-          Fig. 00 — maquette interactive · glisser pour orbiter · cliquer un repère
+          Fig. 00 — avion interactif · glisser pour orbiter · cliquer un repère
         </figcaption>
       </figure>
 

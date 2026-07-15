@@ -1,18 +1,17 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import { Edges } from '@react-three/drei';
 
-/* Avion de ligne procédural, style maquette de bureau d'études :
-   fuselage profilé (lathe), voilure en flèche avec dièdre et winglets,
-   bande hublots + cheatline, réacteurs profilés. Chaque pièce
+/* Avion de ligne procédural, rendu réaliste : peinture blanche vernie
+   (clearcoat) qui accroche les reflets de l'environnement studio,
+   nacelles métal, verrière et hublots en verre teinté. Chaque pièce
    interactive porte un id (nacelle, aile, empennage, ecs, moteur). */
 
-const BASE = '#EDEBE0';
-const HULL = '#F4F2E9';
-const HOVER = '#FFD9C2';
+const HULL = '#FBFBFA';
+const WING = '#DDE0E2';
+const HOVER = '#FFB68C';
 const ACTIVE = '#FF4F00';
-const DARK = '#1c1c1c';
-const EDGE = '#141414';
+const GLASS = '#14181d';
+const METAL = '#C9CDD3';
 const DIHEDRAL = 0.1;
 
 interface PartProps {
@@ -22,7 +21,7 @@ interface PartProps {
   onSelect: (id: string) => void;
 }
 
-function colorFor(id: string, active: string | null, hovered: string | null, base = BASE) {
+function colorFor(id: string, active: string | null, hovered: string | null, base: string) {
   if (active === id) return ACTIVE;
   if (hovered === id) return HOVER;
   return base;
@@ -46,6 +45,34 @@ function partHandlers(id: string, p: PartProps) {
   };
 }
 
+/* peinture avion : blanc verni, reflets nets */
+function Paint({ color }: { color: string }) {
+  return (
+    <meshPhysicalMaterial
+      color={color}
+      roughness={0.28}
+      metalness={0.05}
+      clearcoat={1}
+      clearcoatRoughness={0.12}
+      envMapIntensity={1.25}
+      side={THREE.DoubleSide}
+    />
+  );
+}
+
+function Glass() {
+  return (
+    <meshPhysicalMaterial
+      color={GLASS}
+      roughness={0.08}
+      metalness={0.4}
+      clearcoat={1}
+      clearcoatRoughness={0.05}
+      envMapIntensity={1.6}
+    />
+  );
+}
+
 /* Coque du fuselage : profil de révolution, nez pointu, queue effilée */
 function useHullGeometry() {
   return useMemo(() => {
@@ -64,7 +91,7 @@ function useHullGeometry() {
       new THREE.Vector2(0.13, 3.06),
       new THREE.Vector2(0.001, 3.3),
     ];
-    return new THREE.LatheGeometry(pts, 44);
+    return new THREE.LatheGeometry(pts, 96);
   }, []);
 }
 
@@ -129,36 +156,42 @@ function usePodGeometry() {
       new THREE.Vector2(0.3, 0.32),
       new THREE.Vector2(0.26, 0.52),
     ];
-    return new THREE.LatheGeometry(pts, 28);
+    return new THREE.LatheGeometry(pts, 48);
   }, []);
 }
 
 function Engine({ side, id, p, pod }: { side: 1 | -1; id: string; p: PartProps; pod: THREE.LatheGeometry }) {
-  const color = colorFor(id, p.active, p.hovered);
+  const color = colorFor(id, p.active, p.hovered, METAL);
   const h = partHandlers(id, p);
   return (
     <group position={[1.32 * side, -0.36, 0.5]} {...h}>
       <mesh geometry={pod} rotation-x={Math.PI / 2}>
-        <meshStandardMaterial color={color} roughness={0.85} side={THREE.DoubleSide} />
+        <meshPhysicalMaterial
+          color={color}
+          roughness={0.22}
+          metalness={0.9}
+          envMapIntensity={1.3}
+          side={THREE.DoubleSide}
+        />
       </mesh>
       {/* soufflante + cône */}
       <mesh rotation-x={Math.PI / 2} position={[0, 0, 0.47]}>
-        <circleGeometry args={[0.25, 28]} />
-        <meshStandardMaterial color={DARK} roughness={0.65} side={THREE.DoubleSide} />
+        <circleGeometry args={[0.25, 40]} />
+        <meshStandardMaterial color="#0d0f12" roughness={0.5} metalness={0.6} side={THREE.DoubleSide} />
       </mesh>
       <mesh rotation-x={-Math.PI / 2} position={[0, 0, 0.47]}>
-        <coneGeometry args={[0.07, 0.14, 16]} />
-        <meshStandardMaterial color={HULL} roughness={0.8} />
+        <coneGeometry args={[0.07, 0.14, 24]} />
+        <meshStandardMaterial color={METAL} roughness={0.3} metalness={0.9} />
       </mesh>
       {/* tuyère primaire */}
       <mesh rotation-x={Math.PI / 2} position={[0, 0.02, -0.84]}>
-        <cylinderGeometry args={[0.12, 0.07, 0.26, 20]} />
-        <meshStandardMaterial color={DARK} roughness={0.6} />
+        <cylinderGeometry args={[0.12, 0.07, 0.26, 32]} />
+        <meshStandardMaterial color="#8a8d93" roughness={0.35} metalness={1} />
       </mesh>
       {/* mât */}
       <mesh position={[0, 0.3, -0.12]} rotation-x={0.25}>
         <boxGeometry args={[0.06, 0.34, 0.55]} />
-        <meshStandardMaterial color={BASE} roughness={0.9} />
+        <Paint color={WING} />
       </mesh>
     </group>
   );
@@ -181,8 +214,7 @@ function Wing({
     <group scale={[side, 1, 1]}>
       <group rotation-z={DIHEDRAL} {...handlers}>
         <mesh geometry={geo} rotation-x={Math.PI / 2} position={[0, -0.16, 0]}>
-          <meshStandardMaterial color={color} roughness={0.85} side={THREE.DoubleSide} />
-          <Edges color={EDGE} threshold={20} />
+          <Paint color={color} />
         </mesh>
         {/* winglet incliné vers l'extérieur */}
         <mesh
@@ -190,8 +222,7 @@ function Wing({
           rotation={[0, Math.PI / 2, -0.35]}
           position={[3.24, -0.14, -0.62]}
         >
-          <meshStandardMaterial color={color} roughness={0.85} side={THREE.DoubleSide} />
-          <Edges color={EDGE} threshold={20} />
+          <Paint color={color} />
         </mesh>
       </group>
     </group>
@@ -206,9 +237,9 @@ export default function PlaneModel(p: PartProps) {
   const fin = useFinGeometry();
   const pod = usePodGeometry();
 
-  const wingColor = colorFor('aile', p.active, p.hovered);
-  const empColor = colorFor('empennage', p.active, p.hovered);
-  const ecsColor = colorFor('ecs', p.active, p.hovered, '#E6E4D8');
+  const wingColor = colorFor('aile', p.active, p.hovered, WING);
+  const empColor = colorFor('empennage', p.active, p.hovered, WING);
+  const ecsColor = colorFor('ecs', p.active, p.hovered, '#E9EAEA');
   const wingH = partHandlers('aile', p);
   const empH = partHandlers('empennage', p);
   const ecsH = partHandlers('ecs', p);
@@ -217,21 +248,21 @@ export default function PlaneModel(p: PartProps) {
     <group>
       {/* fuselage */}
       <mesh geometry={hull} rotation-x={Math.PI / 2}>
-        <meshStandardMaterial color={HULL} roughness={0.88} />
+        <Paint color={HULL} />
       </mesh>
       {/* bande hublots + cheatline orange */}
       <mesh position={[0, 0.14, 0.15]}>
         <boxGeometry args={[0.905, 0.045, 3.4]} />
-        <meshStandardMaterial color={DARK} roughness={0.7} />
+        <Glass />
       </mesh>
       <mesh position={[0, 0.02, 0.15]}>
         <boxGeometry args={[0.906, 0.022, 3.4]} />
-        <meshStandardMaterial color={ACTIVE} roughness={0.7} />
+        <Paint color={ACTIVE} />
       </mesh>
       {/* pare-brise cockpit */}
       <mesh position={[0, 0.13, 2.4]} rotation-x={-0.2}>
         <boxGeometry args={[0.34, 0.09, 0.26]} />
-        <meshStandardMaterial color={DARK} roughness={0.6} />
+        <Glass />
       </mesh>
 
       {/* voilure (pièce : aile) */}
@@ -241,8 +272,7 @@ export default function PlaneModel(p: PartProps) {
       {/* empennage : stabilisateurs + dérive */}
       <group {...empH}>
         <mesh geometry={stab} rotation-x={Math.PI / 2} position={[0, 0.15, -3.15]}>
-          <meshStandardMaterial color={empColor} roughness={0.85} side={THREE.DoubleSide} />
-          <Edges color={EDGE} threshold={20} />
+          <Paint color={empColor} />
         </mesh>
         <mesh
           geometry={stab}
@@ -250,19 +280,17 @@ export default function PlaneModel(p: PartProps) {
           position={[0, 0.15, -3.15]}
           scale={[-1, 1, 1]}
         >
-          <meshStandardMaterial color={empColor} roughness={0.85} side={THREE.DoubleSide} />
-          <Edges color={EDGE} threshold={20} />
+          <Paint color={empColor} />
         </mesh>
         <mesh geometry={fin} rotation-y={Math.PI / 2} position={[-0.028, 0.25, -2.35]}>
-          <meshStandardMaterial color={empColor} roughness={0.85} side={THREE.DoubleSide} />
-          <Edges color={EDGE} threshold={20} />
+          <Paint color={empColor} />
         </mesh>
       </group>
 
       {/* carénage ventral / pack ECS */}
       <mesh position={[0, -0.38, 0.1]} scale={[1.1, 0.42, 2.5]} {...ecsH}>
-        <sphereGeometry args={[0.5, 22, 14]} />
-        <meshStandardMaterial color={ecsColor} roughness={0.9} />
+        <sphereGeometry args={[0.5, 40, 24]} />
+        <Paint color={ecsColor} />
       </mesh>
 
       {/* moteurs : droit = nacelle (acoustique), gauche = moteur/tuyère */}
