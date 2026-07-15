@@ -46,7 +46,7 @@ export const planeParts: PlanePart[] = [
   {
     id: 'moteur',
     label: 'Moteur — tuyère',
-    slugs: ['ecoulements-compressibles', 'combustion'],
+    slugs: ['ecoulements-compressibles'],
     anchor: [-1.25, -0.25, -0.15],
     camera: [-4.2, 0.3, 3.6],
   },
