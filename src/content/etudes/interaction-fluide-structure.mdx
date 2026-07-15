@@ -19,16 +19,16 @@ plates: []
 
 ## Contexte
 
-{/* À rédiger. */}
+L'interaction entre un fluide et une structure déformable ou mobile génère des instabilités aéroélastiques complexes, potentiellement destructrices pour les ouvrages d'art ou les profils aérodynamiques. Ce projet s'est concentré sur l'étude numérique de deux de ces phénomènes : les vibrations induites par vortex (VIV) et le galop.
 
 ## Démarche
 
-{/* À rédiger — cylindre puis demi-cylindre en D, ALE, nombre de Strouhal, plage de lock-in. */}
+Des simulations ont été menées sous OpenFOAM en utilisant un maillage dynamique ALE (*Arbitrary Lagrangian-Eulerian*) pour suivre le mouvement de la structure. J'ai d'abord modélisé un cylindre complet pour caractériser le nombre de Strouhal, puis un demi-cylindre profilé en D pour étudier l'impact de la géométrie sur l'apparition des instabilités.
 
 ## Résultats
 
-{/* À rédiger — VIV bornées vs galop divergent, amplitudes, fréquences. */}
+Pour le cylindre, l'étude a mis en évidence des Vibrations Induites par Vortex (VIV) aux amplitudes intrinsèquement bornées, avec une plage claire d'accrochage (*lock-in*) où la fréquence de lâcher tourbillonnaire se synchronise avec la fréquence propre du solide. Pour le profil en D, les simulations ont capturé le phénomène de galop, menant cette fois-ci à une amplitude d'oscillation divergente. 
 
 ## Ce que ça démontre
 
-{/* À rédiger. */}
+Une aisance sur OpenFOAM pour des configurations avancées impliquant des maillages mobiles, ainsi qu'une capacité à analyser physiquement des phénomènes de couplage fluide-structure en différenciant les régimes bornés (VIV) des instabilités divergentes (Galop).

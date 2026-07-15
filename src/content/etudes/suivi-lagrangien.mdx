@@ -19,16 +19,16 @@ plates: []
 
 ## Contexte
 
-{/* À rédiger. */}
+Dans de nombreuses applications (combustion, dispersion de polluants, météorologie), il est crucial de suivre l'évolution d'une particule en se plaçant dans son propre référentiel. L'objectif de ce projet était de développer de zéro un code en Python permettant de modéliser le mouvement de particules plongées dans divers écoulements.
 
 ## Démarche
 
-{/* À rédiger — schémas Euler, RK2-SSP, RK4 ; champ de Perlin ; architecture modulaire du code. */}
+Le programme a été conçu de manière modulaire, en intégrant une interpolation bilinéaire pour l'évaluation locale du champ de vitesse. J'ai implémenté et comparé plusieurs schémas d'intégration temporelle : Euler explicite, SSP-RK2 et RK4. Des champs de vitesse variés (uniforme, cisaillement, tourbillonnaire via un bruit de Perlin) ont été définis pour tester la robustesse du code.
 
 ## Résultats
 
-{/* À rédiger — ordres de convergence mesurés, simulation de dispersion de polluant. */}
+Le code a d'abord été validé sur des cas analytiques (chute libre, balistique). L'étude de convergence a clairement démontré l'avantage du schéma Runge-Kutta d'ordre 2, qui s'est avéré 100 fois plus précis qu'Euler pour un même pas de temps. En application finale, le code a permis de simuler avec succès la dispersion d'un panache de polluant dans un champ de vent synthétique (Perlin).
 
 ## Ce que ça démontre
 
-{/* À rédiger. */}
+La capacité à développer un outil numérique modulaire de A à Z, à mener des études de convergence spatiale et temporelle rigoureuses, et à justifier le choix d'un schéma d'intégration en trouvant le compromis optimal entre précision, stabilité et temps de calcul.
