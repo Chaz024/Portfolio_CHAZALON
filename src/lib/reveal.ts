@@ -18,21 +18,95 @@ export function initMotion(): void {
   });
 }
 
+const EASE = [0.4, 0, 0.2, 1] as const;
+
+function sample<T>(arr: T[], n: number): T[] {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a.slice(0, Math.min(n, a.length));
+}
+
 export function initCurtain(): void {
   const c = document.querySelector<HTMLElement>('.curtain');
   if (!c || reduced()) return;
+  const cols = Array.from(c.querySelectorAll<HTMLElement>('.curtain-cols span'));
+  const stack = c.querySelector<HTMLElement>('.curtain-stack')!;
+  const tag = c.querySelector<HTMLElement>('.curtain-tag')!;
+  const covers: string[] = JSON.parse(c.dataset.covers || '[]');
+  const indexPath = (c.dataset.indexPath || '').replace(/\/$/, '');
+  covers.forEach((u) => { const im = new Image(); im.src = u; }); // préchargement
+
   // astro:page-load tire AUSSI au chargement initial (pas astro:before-preparation) :
   // sans ce garde, le rideau flasherait plein écran à chaque première visite.
   let entered = false;
-  document.addEventListener('astro:before-preparation', () => {
+  let mode: 'solid' | 'image' = 'solid';
+  let imgLayers: HTMLElement[] = [];
+  let cover: Promise<unknown> = Promise.resolve();
+
+  document.addEventListener('astro:before-preparation', (e) => {
     entered = true;
-    // keyframe unique : part de la position courante (pas de snap si navigation rapide)
-    animate(c, { transform: 'translateY(0%)' }, { duration: 0.28, ease: [0.4, 0, 0.2, 1] });
+    const ev = e as unknown as { to?: URL; loader?: () => Promise<unknown> };
+    const to = (ev.to?.pathname || '').replace(/\/$/, '');
+    mode = to === indexPath && covers.length >= 3 ? 'image' : 'solid';
+    c.classList.toggle('is-image', mode === 'image');
+    c.classList.toggle('is-solid', mode === 'solid');
+
+    if (mode === 'solid') {
+      // colonnes qui montent en quinconce — bref et net
+      cols.forEach((el) => { el.style.transform = 'translateY(101%)'; });
+      cover = animate(
+        cols,
+        { transform: 'translateY(0%)' },
+        { duration: 0.36, delay: stagger(0.05), ease: EASE },
+      ).finished;
+    } else {
+      // chaque visuel MONTE par-dessus le précédent (superposition), et reste
+      // affiché un moment avant que le suivant ne le recouvre → « calques »
+      stack.querySelectorAll('.curtain-layer').forEach((n) => n.remove());
+      imgLayers = sample(covers, 4).map((u) => {
+        const s = document.createElement('span');
+        s.className = 'curtain-layer';
+        s.style.backgroundImage = `url("${u}")`;
+        stack.appendChild(s);
+        return s;
+      });
+      animate(tag, { opacity: [0, 1] }, { duration: 0.4, delay: 0.4 });
+      // chaque calque monte par-dessus le précédent et reste ~0.6 s avant que
+      // le suivant ne le recouvre (délais explicites : dwell fiable)
+      const GAP = 0.45;
+      let last = animate(imgLayers[0], { transform: ['translateY(101%)', 'translateY(0%)'] }, { duration: 0.45, ease: EASE });
+      imgLayers.slice(1).forEach((el, i) => {
+        last = animate(el, { transform: ['translateY(101%)', 'translateY(0%)'] }, { duration: 0.45, delay: GAP * (i + 1), ease: EASE });
+      });
+      cover = last.finished.then(() => new Promise((r) => setTimeout(r, 300))); // dwell final
+    }
+
+    // retenir la bascule du DOM tant que le rideau n'a pas couvert l'écran :
+    // la page d'arrivée n'apparaît jamais en transparence pendant la montée.
+    const orig = ev.loader;
+    if (orig) ev.loader = async () => { await Promise.all([orig(), cover]); };
   });
+
   document.addEventListener('astro:page-load', () => {
     if (!entered) return;
     entered = false;
-    animate(c, { transform: 'translateY(-101%)' }, { duration: 0.32, ease: [0.4, 0, 0.2, 1] })
-      .finished.then(() => { c.style.transform = 'translateY(101%)'; });
+    // ne découvrir qu'une fois le rideau entièrement monté (chaque calque a eu
+    // son temps d'affichage), même si la page d'arrivée est prête plus tôt.
+    cover.then(() => {
+      if (mode === 'solid') {
+        animate(cols, { transform: 'translateY(-101%)' }, { duration: 0.42, delay: stagger(0.05), ease: EASE })
+          .finished.then(() => { cols.forEach((el) => { el.style.transform = 'translateY(101%)'; }); });
+      } else {
+        animate(tag, { opacity: 0 }, { duration: 0.25 });
+        animate(imgLayers, { transform: 'translateY(-101%)' }, { duration: 0.62, delay: stagger(0.05), ease: EASE })
+          .finished.then(() => {
+            stack.querySelectorAll('.curtain-layer').forEach((n) => n.remove());
+            imgLayers = [];
+          });
+      }
+    });
   });
 }

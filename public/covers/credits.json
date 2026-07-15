@@ -1,0 +1,68 @@
+[
+ {
+  "name": "cfd-karman",
+  "license": "Libre",
+  "author": "Hugo Chazalon (généré, numpy)",
+  "source": ""
+ },
+ {
+  "name": "cfd-vorticite",
+  "license": "Libre",
+  "author": "Hugo Chazalon (généré, numpy)",
+  "source": ""
+ },
+ {
+  "name": "profil-lignes-courant",
+  "license": "CC BY 3.0 de",
+  "author": "Auteur inconnu",
+  "source": "https://commons.wikimedia.org/wiki/File:1915ca_abger_fluegel_(cropped_and_mirrored).jpg"
+ },
+ {
+  "name": "soufflerie-tufts",
+  "license": "CC BY-SA 3.0",
+  "author": "Aerom",
+  "source": "https://commons.wikimedia.org/wiki/File:Airfoil-Wind_tunnel.jpg"
+ },
+ {
+  "name": "soufflerie-nasa",
+  "license": "Public domain",
+  "author": "NASA/GRC",
+  "source": "https://commons.wikimedia.org/wiki/File:Supersonic_Wind_Tunnel_Test_Section_-_GPN-2000-000624.jpg"
+ },
+ {
+  "name": "aile-nuages",
+  "license": "CC BY-SA 4.0",
+  "author": "Daniel Case",
+  "source": "https://commons.wikimedia.org/wiki/File:Airliner_wing_and_clouds_over_South_Pacific.jpg"
+ },
+ {
+  "name": "aile-vol",
+  "license": "CC BY 4.0",
+  "author": "Olivier Cleynen",
+  "source": "https://commons.wikimedia.org/wiki/File:Wing_of_an_SSJ_in_flight.jpg"
+ },
+ {
+  "name": "peloton",
+  "license": "CC BY-SA 4.0",
+  "author": "Fukumoto",
+  "source": "https://commons.wikimedia.org/wiki/File:Japan_Cup_Cycle_Road_Race_2019_PA200848.jpg"
+ },
+ {
+  "name": "peloton-route",
+  "license": "CC BY-SA 4.0",
+  "author": "Fukumoto",
+  "source": "https://commons.wikimedia.org/wiki/File:Japan_Cup_Cycle_Road_Race_2024_PA200123.jpg"
+ },
+ {
+  "name": "turboreacteur",
+  "license": "CC BY-SA",
+  "author": "Matti Blume",
+  "source": "https://commons.wikimedia.org/wiki/File:Honeywell_HTF7000_turbofan_engine_(EBACE_2023).jpg"
+ },
+ {
+  "name": "supercalculateur",
+  "license": "Public domain",
+  "author": "Argonne National Laboratory",
+  "source": "https://commons.wikimedia.org/wiki/File:Aurora_environment_1600x900.jpg"
+ }
+]

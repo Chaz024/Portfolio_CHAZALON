@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Plate from '../../components/Plate.astro';
+import Btn from '../../components/Btn.astro';
 import { withBase } from '../../lib/url';
 
 export async function getStaticPaths() {
@@ -35,7 +36,7 @@ const slugOf = (x: typeof e) => x.id.replace(/\.mdx$/, '');
     </div>
     <footer class="wrap foot rule-top">
       {d.pdf
-        ? <a class="btn-ink" href={withBase(d.pdf)} download>Télécharger le rapport (PDF · {d.pdfSize})</a>
+        ? <Btn href={withBase(d.pdf)} label={`Télécharger le rapport (PDF · ${d.pdfSize})`} download />
         : <span class="mono-label">Travail dirigé — pas de rapport dédié ; méthodes détaillées ci-dessus.</span>}
       <nav class="pn mono-label" aria-label="Autres études">
         <a href={withBase(`/etudes/${slugOf(prev)}`)}>← {String(prev.data.num).padStart(2, '0')} {prev.data.title}</a>

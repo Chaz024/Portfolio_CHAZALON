@@ -1,4 +1,6 @@
 ---
+import fs from 'node:fs';
+import path from 'node:path';
 import '@fontsource-variable/archivo/wdth.css';
 import '@fontsource-variable/source-serif-4';
 import '@fontsource-variable/jetbrains-mono';
@@ -10,6 +12,16 @@ import { withBase } from '../lib/url';
 interface Props { title: string; description: string; ogImage?: string }
 const { title, description, ogImage } = Astro.props;
 const og = new URL(ogImage ?? withBase('/og.jpg'), Astro.site);
+
+// visuels génériques (CFD, aéro, cyclisme, aviation, HPC) empilés dans la
+// transition « calques » vers l'index. Voir public/covers/CREDITS.md.
+const coversDir = path.join(process.cwd(), 'public', 'covers');
+const coverUrls = fs
+  .readdirSync(coversDir)
+  .filter((f) => f.endsWith('.webp'))
+  .sort()
+  .map((f) => withBase(`/covers/${f}`));
+const indexPath = withBase('/etudes');
 ---
 <!doctype html>
 <html lang="fr">
@@ -31,7 +43,21 @@ const og = new URL(ogImage ?? withBase('/og.jpg'), Astro.site);
   <Nav />
   <main id="main"><slot /></main>
   <FooterCartouche />
-  <div class="curtain" aria-hidden="true"></div>
+  <div
+    class="curtain"
+    aria-hidden="true"
+    transition:persist
+    data-index-path={indexPath}
+    data-covers={JSON.stringify(coverUrls)}
+  >
+    <div class="curtain-cols">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <span style={`--i:${i}`}></span>
+      ))}
+    </div>
+    <div class="curtain-stack"></div>
+    <span class="curtain-tag mono-label" aria-hidden="true">Index des études</span>
+  </div>
   <script>
     import { initMotion, initCurtain } from '../lib/reveal';
     initCurtain();
@@ -40,5 +66,23 @@ const og = new URL(ogImage ?? withBase('/og.jpg'), Astro.site);
 </body>
 </html>
 <style is:global>
-  .curtain{position:fixed;inset:0;background:var(--accent);transform:translateY(101%);z-index:90;pointer-events:none;}
+  /* désactive le fondu par défaut des View Transitions : seul le rideau anime */
+  ::view-transition-old(root),
+  ::view-transition-new(root){ animation: none; mix-blend-mode: normal; }
+
+  .curtain{position:fixed;inset:0;z-index:90;pointer-events:none;overflow:hidden;}
+  .curtain-cols{position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);}
+  .curtain-cols span{background:var(--accent);transform:translateY(101%);will-change:transform;}
+  .curtain-cols span:nth-child(even){background:var(--ink);}
+  .curtain-stack{position:absolute;inset:0;}
+  .curtain-layer{position:absolute;inset:0;background-size:cover;background-position:center;
+    background-color:var(--ink);transform:translateY(101%);will-change:transform;
+    box-shadow:0 -18px 45px rgba(0,0,0,.28);}
+  .curtain-tag{position:absolute;left:24px;bottom:24px;color:var(--paper);opacity:0;
+    font-size:var(--t-xs);letter-spacing:.2em;}
+  /* rien de visible tant qu'un mode n'est pas armé (pas de flash au 1er chargement) */
+  .curtain:not(.is-image) .curtain-stack,
+  .curtain:not(.is-image) .curtain-tag{display:none;}
+  .curtain:not(.is-solid) .curtain-cols{display:none;}
+  @media (prefers-reduced-motion:reduce){ .curtain{display:none;} }
 </style>

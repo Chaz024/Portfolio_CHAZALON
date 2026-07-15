@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import StudyIndex from '../components/StudyIndex.astro';
+import Btn from '../components/Btn.astro';
 import PlaneShowcase from '../components/plane/PlaneShowcase.astro';
 import { contact } from '../data/contact';
 import { withBase } from '../lib/url';
@@ -19,14 +19,9 @@ import { withBase } from '../lib/url';
     <div class="g12 sub">
       <p class="serif lead">Quatorze études documentées — solveurs écrits à la main, runs OpenFOAM &amp; Fluent,
         calcul parallèle sur supercalculateur. Chaque résultat est validé, chiffré, et son rapport téléchargeable.</p>
-      <p class="mono-label toc">Aéroacoustique · LBM — 01<br/>Fluide-structure · OpenFOAM — 05<br/>HPC · MPI/GPU — 04<br/><a href="#etudes">Tout l'index ↓</a></p>
+      <p class="mono-label toc">Aéroacoustique · LBM — 01<br/>Fluide-structure · OpenFOAM — 05<br/>HPC · MPI/GPU — 04<br/><a href={withBase('/etudes')}>Tout l'index →</a></p>
     </div>
     <PlaneShowcase />
-  </section>
-
-  <section class="wrap" id="etudes" aria-labelledby="h-etudes">
-    <h2 class="display sec" id="h-etudes"><span class="accent">Index</span> des études <span class="count mono-label" data-counter="14">14</span></h2>
-    <StudyIndex />
   </section>
 
   <section class="wrap g12" id="profil-court" aria-labelledby="h-profil">
@@ -36,7 +31,7 @@ import { withBase } from '../lib/url';
         <strong>Mécanique des Fluides, Énergies &amp; Environnement</strong>. Du modèle physique au code qui
         tourne : discrétisation, implémentation, validation, restitution. Obsession : des résultats
         <strong>justes, validés, reproductibles</strong>.</p>
-      <a class="btn-ghost" href={withBase('/profil')}>Profil complet →</a>
+      <Btn href={withBase('/profil')} label="Profil complet" variant="ghost" />
     </div>
     <div class="col-r mono-label">
       <span>Méthodes numériques — volumes finis, LBM, VLM, Jacobi/MPI</span>
@@ -47,7 +42,7 @@ import { withBase } from '../lib/url';
 
   <section class="wrap cta" aria-label="Contact">
     <h2 class="display giant2">Un stage, un sujet,<br/>un code à faire tourner ?</h2>
-    <a class="btn-ink" href={`mailto:${contact.email}`}>Écrire à Hugo</a>
+    <Btn href={`mailto:${contact.email}`} label="Écrire à Hugo" />
   </section>
 </Base>
 <style>
@@ -58,7 +53,6 @@ import { withBase } from '../lib/url';
   .lead{grid-column:1/8;font-size:1.08rem;}
   .toc{grid-column:9/13;text-align:right;line-height:2.1;color:#55534b;}
   .sec{font-size:var(--t-xl);margin-block:90px 30px;}
-  .count{color:var(--accent);vertical-align:super;}
   #profil-court{align-items:start;}
   .col-l{grid-column:1/8;display:grid;gap:22px;justify-items:start;}
   .col-r{grid-column:9/13;display:grid;gap:14px;color:#55534b;border-left:1px solid var(--rule);padding-left:22px;text-transform:none;}

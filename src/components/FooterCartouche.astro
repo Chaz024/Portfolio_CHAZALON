@@ -17,7 +17,8 @@ const rev = new Date().toISOString().slice(0, 10);
         : <span class="mono-label muted">LinkedIn — bientôt</span>}
       {contact.cvPath && <a class="mono-label" href={withBase(contact.cvPath)} download>CV (PDF) ↓</a>}</div>
     <div class="cell"><span class="mono-label k">Colophon</span>
-      <span class="mono-label muted">RÉV. {rev} — Astro, sans template</span></div>
+      <span class="mono-label muted">RÉV. {rev} — Astro, sans template</span>
+      <a class="mono-label" href={withBase('/credits')}>Crédits visuels ↗</a></div>
   </div>
 </footer>
 <style>

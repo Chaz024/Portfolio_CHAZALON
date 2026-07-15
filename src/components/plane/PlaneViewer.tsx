@@ -164,14 +164,6 @@ export default function PlaneViewer({ parts, whole, modelUrl }: Props) {
 
   return (
     <div className="pv-grid">
-      {/* filtre encre partagé (bord organique du clip-path) */}
-      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true" focusable="false">
-        <filter id="ink-displace" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="7" result="n" />
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="26" />
-        </filter>
-      </svg>
-
       <figure className="pv-stage">
         <span className="pv-tick pv-tick-tl" aria-hidden="true" />
         <span className="pv-tick pv-tick-br" aria-hidden="true" />

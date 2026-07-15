@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import StudyIndex from '../../components/StudyIndex.astro';
+import { getCollection } from 'astro:content';
+const total = (await getCollection('etudes')).length;
+---
+<Base
+  title="Index des études — Hugo Chazalon"
+  description="Index complet des études de mécanique des fluides numérique : CFD, aéroacoustique, calcul haute performance. Méthodes, outils, résultats et rapports téléchargeables."
+>
+  <section class="wrap idx-head">
+    <p class="mono-label kicker"><span class="accent">Index</span> — toutes les études documentées</p>
+    <h1 class="display idx-h">Les <span class="accent">{total}</span> études,<br/>de la première à la dernière.</h1>
+    <p class="serif idx-lead">Chaque ligne mène à une étude : modèle physique, méthode numérique, outils,
+      résultat chiffré et rapport téléchargeable. Rangées par ordre chronologique de réalisation.</p>
+  </section>
+
+  <section class="wrap" aria-label="Index des études">
+    <StudyIndex />
+  </section>
+</Base>
+<style>
+  .idx-head{padding-block:70px 30px;}
+  .kicker{margin-bottom:26px;}
+  .idx-h{font-size:var(--t-xl);max-width:16ch;margin-bottom:26px;}
+  .idx-lead{max-width:52ch;color:#55534b;font-size:1.05rem;}
+</style>

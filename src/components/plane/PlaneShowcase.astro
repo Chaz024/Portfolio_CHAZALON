@@ -103,18 +103,18 @@ const totalWord = ['zéro','une','deux','trois','quatre','cinq','six','sept','hu
   .pv-whole:hover{border-color:var(--accent);}
   .pv-whole-title{font-size:.95rem;}
 
-  /* ---- ink reveal ---- */
-  .ink{filter:url(#ink-displace);height:100%;}
-  .ink.ink-done{filter:none;}
-  .ink-plain{height:100%;}
-  .ink-clip{position:relative;height:100%;animation:ink-grow .85s cubic-bezier(.3,0,.2,1) both;}
-  .ink-wash{position:absolute;inset:0;background:var(--accent);pointer-events:none;
-    animation:ink-wash-out .5s .3s both;}
-  @keyframes ink-grow{
-    from{clip-path:circle(0% at 22% 14%);}
-    to{clip-path:circle(145% at 22% 14%);}
-  }
-  @keyframes ink-wash-out{from{opacity:1;}to{opacity:0;}}
+  /* ---- ink reveal (canvas : on essuie l'encre pour découvrir la fiche) ---- */
+  .ink-wrap{position:relative;height:100%;}
+  .ink-content{height:100%;}
+  .ink-canvas{position:absolute;inset:0;width:100%;height:100%;
+    cursor:grab;touch-action:none;opacity:1;transition:opacity .45s ease;}
+  .ink-canvas:active{cursor:grabbing;}
+  .ink-canvas.is-done{opacity:0;pointer-events:none;}
+  .ink-hint{position:absolute;top:12px;right:16px;color:var(--paper);
+    mix-blend-mode:difference;font-size:var(--t-xs);letter-spacing:.14em;
+    pointer-events:none;animation:ink-hint-pulse 1.6s ease-in-out infinite;}
+  @keyframes ink-hint-pulse{0%,100%{opacity:.55;}50%{opacity:1;}}
+  @media (prefers-reduced-motion:reduce){.ink-hint{display:none;}}
 
   @media (max-width:900px){
     .pv-grid{grid-template-columns:1fr;gap:18px;}

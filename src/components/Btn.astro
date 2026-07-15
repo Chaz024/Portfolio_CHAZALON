@@ -1,0 +1,59 @@
+---
+// Bouton « interactive hover » (façon Magic UI, adapté au style print) :
+// au repos un point accent à gauche du libellé ; au survol le point se dilate
+// pour inonder le bouton, le libellé glisse à droite en fondu, et une copie
+// réentre par la droite avec une flèche, en couleur inversée. CSS pur.
+interface Props {
+  href: string;
+  label: string;
+  variant?: 'ink' | 'ghost';
+  download?: boolean;
+  class?: string;
+}
+const { href, label, variant = 'ink', download = false, class: extra = '' } = Astro.props;
+---
+<a class:list={['hbtn', `hbtn-${variant}`, extra]} href={href} download={download || undefined}>
+  <span class="hbtn-face">
+    <span class="hbtn-dot" aria-hidden="true"></span>
+    <span class="hbtn-text">{label}</span>
+  </span>
+  <span class="hbtn-in" aria-hidden="true">
+    <span>{label}</span>
+    <span class="hbtn-arrow">→</span>
+  </span>
+</a>
+<style>
+  .hbtn{
+    position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);font-size:var(--t-s);letter-spacing:.08em;text-transform:uppercase;
+    padding:14px 26px;text-decoration:none;border:1px solid var(--ink);isolation:isolate;
+  }
+  .hbtn-face{display:inline-flex;align-items:center;gap:12px;position:relative;z-index:1;}
+  .hbtn-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none;
+    transform-origin:center;transition:transform .45s cubic-bezier(.4,0,.2,1);}
+  .hbtn-text{display:inline-block;transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .3s;}
+  .hbtn-in{position:absolute;inset:0;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    color:var(--paper);opacity:0;transform:translateX(28px);
+    transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .3s;}
+  .hbtn-arrow{display:inline-block;}
+
+  /* variantes de couleur */
+  .hbtn-ink{background:var(--ink);color:var(--paper);}
+  .hbtn-ghost{background:transparent;color:var(--ink);}
+
+  /* survol : le point inonde, le libellé sort, la copie entre */
+  .hbtn:hover .hbtn-dot{transform:scale(92);}
+  .hbtn:hover .hbtn-text{transform:translateX(26px);opacity:0;}
+  .hbtn:hover .hbtn-in{transform:translateX(0);opacity:1;}
+  .hbtn:hover{border-color:var(--accent);}
+  .hbtn:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+
+  @media (prefers-reduced-motion:reduce){
+    .hbtn-dot,.hbtn-text,.hbtn-in{transition:none;}
+    .hbtn:hover .hbtn-dot{transform:none;}
+    .hbtn:hover .hbtn-text{transform:none;opacity:1;}
+    .hbtn:hover .hbtn-in{display:none;}
+    .hbtn-ink:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+    .hbtn-ghost:hover{color:var(--accent);}
+  }
+</style>
