@@ -29,9 +29,8 @@ const whole = { label: wholeAircraft.label, studies: wholeAircraft.slugs.map(toS
 const total = parts.reduce((n, p) => n + p.studies.length, 0) + whole.studies.length;
 const totalWord = ['zéro','une','deux','trois','quatre','cinq','six','sept','huit','neuf','dix'][total] ?? String(total);
 ---
-<section class="wrap plane-sec" id="avion" aria-labelledby="h-avion">
-  <p class="mono-label plane-kicker">Planche 00 — Vue d'ensemble <span class="accent">/ sélection</span></p>
-  <h2 class="display sec-title" id="h-avion">Un avion, <span class="accent">{totalWord} études</span></h2>
+<div class="plane-sec" id="avion" aria-label={`Planche interactive : un avion, ${totalWord} études ancrées aux pièces`}>
+  <p class="mono-label plane-kicker"><span class="accent">PL. 00 (interactive)</span> — Un avion, {totalWord} études ancrées aux pièces qu'elles concernent</p>
   <PlaneViewer client:only="react" parts={parts} whole={whole} />
   <noscript>
     <ul class="plane-noscript" role="list">
@@ -49,12 +48,10 @@ const totalWord = ['zéro','une','deux','trois','quatre','cinq','six','sept','hu
       ))}
     </ul>
   </noscript>
-</section>
+</div>
 
 <style is:global>
-  .plane-sec{margin-top:90px;}
-  .plane-sec .plane-kicker{margin-bottom:18px;color:#55534b;}
-  .plane-sec .sec-title{font-size:var(--t-xl);margin-bottom:34px;}
+  .plane-sec .plane-kicker{margin-bottom:16px;color:#55534b;}
   .plane-noscript{list-style:none;border-top:1px solid var(--ink);}
   .plane-noscript li{border-bottom:1px solid var(--rule);padding:12px 0;}
   .plane-noscript a{text-decoration:none;}
