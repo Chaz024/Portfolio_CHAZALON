@@ -19,16 +19,16 @@ plates: []
 
 ## Contexte
 
-{/* À rédiger. */}
+Modéliser le mélange et le transport de scalaires (polluants, chaleur) dans un fluide est fondamental pour l'ingénierie environnementale et énergétique. Ce projet de 1ʳᵉ année visait à résoudre numériquement l'équation d'advection-diffusion 2D pour simuler le mélange de deux fluides.
 
 ## Démarche
 
-{/* À rédiger — volumes de contrôle décalés, schéma amont/centré, contrôle CFL. */}
+Le solveur a été codé de zéro en Fortran 90 en utilisant la méthode des volumes finis sur une grille à variables décalées (*staggered grid*). J'ai implémenté et comparé des schémas d'advection amont et centrés, en gérant de façon stricte la condition de stabilité de Courant-Friedrichs-Lewy (CFL). Les champs résultants ont été exportés et visualisés sous ParaView.
 
 ## Résultats
 
-{/* À rédiger — validation analytique, influence du nombre de Péclet. */}
+Le code a été validé avec succès en confrontant ses résultats aux solutions analytiques de diffusion pure. Des cartographies paramétriques ont permis de mettre en évidence l'influence du nombre de Péclet sur l'écoulement, montrant la transition entre un mélange dominé par la diffusion et un transport dominé par l'advection (où les instabilités numériques du schéma centré apparaissent).
 
 ## Ce que ça démontre
 
-{/* À rédiger. */}
+Compréhension profonde des méthodes de volumes finis pour la CFD (*Computational Fluid Dynamics*), maîtrise du Fortran 90 pour le calcul scientifique, et capacité à utiliser des outils de post-traitement professionnels (ParaView) pour l'analyse visuelle.

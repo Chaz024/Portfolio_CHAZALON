@@ -19,16 +19,16 @@ plates: []
 
 ## Contexte
 
-{/* À rédiger — 1-2 phrases : pourquoi l'effet de sol, cadre du projet 3A. */}
+L'effet de sol est un phénomène aérodynamique crucial lors des phases de décollage et d'atterrissage, modifiant significativement les performances d'une aile. Ce projet de 3ᵉ année a pour but de modéliser mathématiquement et de simuler numériquement l'influence de la proximité du sol sur la portance et la traînée.
 
 ## Démarche
 
-{/* À rédiger — VLM, loi de Biot-Savart, méthode des images, correction de Mondal. */}
+J'ai développé un code sous MATLAB basé sur la méthode des réseaux de tourbillons (VLM - Vortex Lattice Method) et la loi de Biot-Savart. L'effet de sol a été pris en compte via la méthode des images. Le modèle potentiel a ensuite été enrichi par l'intégration d'une correction visqueuse (modèle de Mondal) pour se rapprocher de la réalité physique.
 
 ## Résultats
 
-{/* À rédiger — résultats chiffrés : évolution de la traînée induite avec la hauteur, rôle de l'upwash. */}
+Les résultats chiffrés démontrent une réduction notable de la traînée induite à mesure que l'aile se rapproche du sol, provoquée par la déflexion verticale du flux (*upwash*) induite par l'aile image. La correction de Mondal permet en outre de mieux borner la portance à très faible hauteur en simulant les effets de couche limite.
 
 ## Ce que ça démontre
 
-{/* À rédiger — compétences transférables : modélisation potentielle, implémentation MATLAB, validation. */}
+Maîtrise des méthodes de modélisation potentielle (VLM, méthode des images), implémentation algorithmique rigoureuse sous MATLAB, et esprit critique pour corriger les limites d'un modèle non-visqueux face à des données réelles.
