@@ -2,7 +2,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { CameraControls, ContactShadows, Environment, Html, Lightformer } from '@react-three/drei';
 import PlaneModel from './PlaneModel';
-import InkReveal from './InkReveal';
+import { motion, AnimatePresence } from 'motion/react';
 
 export interface StudyRef {
   num: number;
@@ -134,14 +134,34 @@ function Scene({
   );
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+  },
+  exit: { opacity: 0, transition: { duration: 0.2 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15, filter: 'blur(8px)' },
+  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { type: 'spring', stiffness: 100, damping: 15 } }
+};
+
 function CardStudies({ part }: { part: { label: string; studies: StudyRef[] } }) {
   return (
-    <div className="pv-card-in">
-      <p className="mono-label pv-card-kicker">
+    <motion.div 
+      className="pv-card-in"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      exit="exit"
+    >
+      <motion.p variants={itemVariants} className="mono-label pv-card-kicker">
         Pièce inspectée — <span className="accent">{part.label}</span>
-      </p>
+      </motion.p>
       {part.studies.map((s) => (
-        <article className="pv-study" key={s.num}>
+        <motion.article variants={itemVariants} className="pv-study" key={s.num}>
           <span className="pv-study-num display" aria-hidden="true">
             {String(s.num).padStart(2, '0')}
           </span>
@@ -150,9 +170,9 @@ function CardStudies({ part }: { part: { label: string; studies: StudyRef[] } })
           <a className="pv-study-link mono-label" href={s.url}>
             Voir l'étude →
           </a>
-        </article>
+        </motion.article>
       ))}
-    </div>
+    </motion.div>
   );
 }
 
@@ -203,46 +223,53 @@ export default function PlaneViewer({ parts, whole, modelUrl }: Props) {
         </figcaption>
       </figure>
 
-      <aside className="pv-card" aria-live="polite">
-        {activePart ? (
-          <InkReveal reveal={activePart.id} reduced={reduced}>
-            <CardStudies part={activePart} />
-          </InkReveal>
-        ) : (
-          <div className="pv-card-in pv-card-default">
-            <p className="mono-label pv-card-kicker">Nomenclature — sélection</p>
-            <p className="serif pv-card-hint">
-              Chaque repère ancre une étude à la pièce qu'elle concerne. Cliquer un repère pour
-              inspecter la pièce et ouvrir sa fiche.
-            </p>
-            <ul className="pv-legend" role="list">
-              {parts.map((p) => (
-                <li key={p.id}>
-                  <button
-                    type="button"
-                    className="pv-legend-row mono-label"
-                    onClick={() => setActive(p.id)}
-                    onPointerEnter={() => setHovered(p.id)}
-                    onPointerLeave={() => setHovered(null)}
-                  >
-                    <span className="accent">
-                      {p.studies.map((s) => String(s.num).padStart(2, '0')).join('·')}
-                    </span>
-                    <span>{p.label}</span>
-                  </button>
-                </li>
+      <aside className="pv-card glass-panel" aria-live="polite">
+        <AnimatePresence mode="wait">
+          {activePart ? (
+            <CardStudies key={activePart.id} part={activePart} />
+          ) : (
+            <motion.div 
+              key="default"
+              className="pv-card-in pv-card-default"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              exit="exit"
+            >
+              <motion.p variants={itemVariants} className="mono-label pv-card-kicker">Nomenclature — sélection</motion.p>
+              <motion.p variants={itemVariants} className="serif pv-card-hint">
+                Chaque repère ancre une étude à la pièce qu'elle concerne. Cliquer un repère pour
+                inspecter la pièce et ouvrir sa fiche.
+              </motion.p>
+              <motion.ul variants={itemVariants} className="pv-legend" role="list">
+                {parts.map((p) => (
+                  <li key={p.id}>
+                    <button
+                      type="button"
+                      className="pv-legend-row mono-label"
+                      onClick={() => setActive(p.id)}
+                      onPointerEnter={() => setHovered(p.id)}
+                      onPointerLeave={() => setHovered(null)}
+                    >
+                      <span className="accent">
+                        {p.studies.map((s) => String(s.num).padStart(2, '0')).join('·')}
+                      </span>
+                      <span>{p.label}</span>
+                    </button>
+                  </li>
+                ))}
+              </motion.ul>
+              {whole.studies.map((s) => (
+                <motion.a variants={itemVariants} className="pv-whole" key={s.num} href={s.url}>
+                  <span className="mono-label">
+                    <span className="accent">{String(s.num).padStart(2, '0')}</span> — {whole.label}
+                  </span>
+                  <span className="pv-whole-title display">{s.title} →</span>
+                </motion.a>
               ))}
-            </ul>
-            {whole.studies.map((s) => (
-              <a className="pv-whole" key={s.num} href={s.url}>
-                <span className="mono-label">
-                  <span className="accent">{String(s.num).padStart(2, '0')}</span> — {whole.label}
-                </span>
-                <span className="pv-whole-title display">{s.title} →</span>
-              </a>
-            ))}
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </aside>
     </div>
   );

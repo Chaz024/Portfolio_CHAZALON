@@ -69,20 +69,26 @@ const totalWord = ['zéro','une','deux','trois','quatre','cinq','six','sept','hu
 
   /* ---- hotspots (portails drei Html) ---- */
   .pv-hs-wrap{z-index:5!important;}
-  .pv-hs{display:grid;justify-items:start;gap:2px;background:none;border:none;cursor:pointer;
+  .pv-hs{display:grid;justify-items:start;gap:6px;background:none;border:none;cursor:pointer;
     font-family:var(--font-mono);padding:0;}
-  .pv-hs-square{width:11px;height:11px;border:1.5px solid var(--ink);background:var(--paper);
-    transition:background .18s,border-color .18s;}
-  .pv-hs:hover .pv-hs-square,.pv-hs.is-active .pv-hs-square{background:var(--accent);border-color:var(--accent);}
+  .pv-hs-square{width:16px;height:16px;border-radius:50%;border:2px solid var(--ink);background:rgba(255,255,255,0.8);
+    box-shadow:0 0 0 0 rgba(255, 79, 0, 0.4);
+    transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);}
+  .pv-hs:hover .pv-hs-square,.pv-hs.is-active .pv-hs-square{
+    background:var(--accent);border-color:var(--accent);
+    box-shadow:0 0 0 8px rgba(255, 79, 0, 0.2);
+    transform:scale(1.1);
+  }
   .pv-hs-id{font-size:var(--t-xs);letter-spacing:.12em;color:var(--ink);
-    border-bottom:1px solid var(--ink);padding-bottom:1px;white-space:nowrap;}
+    border-bottom:1px solid var(--ink);padding-bottom:1px;white-space:nowrap;transition:color 0.3s;}
   .pv-hs-label{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:#8a887f;
-    opacity:0;transform:translateY(-2px);transition:opacity .18s,transform .18s;white-space:nowrap;}
+    opacity:0;transform:translateY(-4px);transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);white-space:nowrap;}
   .pv-hs:hover .pv-hs-label,.pv-hs.is-active .pv-hs-label{opacity:1;transform:none;}
   .pv-hs.is-active .pv-hs-id{color:var(--accent);border-color:var(--accent);}
 
   /* ---- fiche latérale ---- */
-  .pv-card{border:1px solid var(--ink);position:relative;display:grid;min-height:480px;}
+  .pv-card{border:1px solid var(--rule);border-radius:16px;position:relative;display:grid;min-height:480px;
+           background:rgba(250, 250, 247, 0.6);backdrop-filter:blur(24px);box-shadow:0 8px 32px rgba(0,0,0,0.05);}
   .pv-card-in{padding:26px 26px 30px;display:grid;gap:18px;align-content:start;height:100%;}
   .pv-card-kicker{border-bottom:1px solid var(--ink);padding-bottom:12px;}
   .pv-study{display:grid;gap:8px;justify-items:start;padding-bottom:18px;border-bottom:1px solid var(--rule);}

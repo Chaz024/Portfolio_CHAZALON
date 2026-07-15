@@ -8,9 +8,9 @@ import { useGLTF } from '@react-three/drei';
    d'assemblage (mm, repère avion : nez vers +z, y vers le haut).
    Matériaux : peinture blanche vernie + nacelles métal, reflets studio. */
 
-const WHITE = '#FBFBFA';
-const GREY = '#E3E5E7';
-const METAL = '#C9CDD3';
+const WHITE = '#FAFAFA'; // Peinture laquée pure
+const GREY = '#E5E7EB'; // Peinture claire
+const METAL = '#9CA3AF'; // Métal réaliste
 const HOVER = '#FFB68C';
 const ACTIVE = '#FF4F00';
 
@@ -146,18 +146,22 @@ export default function PlaneModel(p: PartProps) {
               {METAL_PARTS.has(name) ? (
                 <meshPhysicalMaterial
                   color={colorFor(name)}
-                  roughness={0.24}
-                  metalness={0.85}
-                  envMapIntensity={1.3}
+                  roughness={0.4}
+                  metalness={0.9}
+                  envMapIntensity={1.5}
+                  emissive={colorFor(name) === ACTIVE || colorFor(name) === HOVER ? colorFor(name) : '#000000'}
+                  emissiveIntensity={colorFor(name) === ACTIVE ? 0.3 : colorFor(name) === HOVER ? 0.15 : 0}
                 />
               ) : (
                 <meshPhysicalMaterial
                   color={colorFor(name)}
-                  roughness={0.3}
-                  metalness={0.05}
+                  roughness={0.15}
+                  metalness={0.1}
                   clearcoat={1}
-                  clearcoatRoughness={0.12}
-                  envMapIntensity={1.25}
+                  clearcoatRoughness={0.05}
+                  envMapIntensity={1.4}
+                  emissive={colorFor(name) === ACTIVE || colorFor(name) === HOVER ? colorFor(name) : '#000000'}
+                  emissiveIntensity={colorFor(name) === ACTIVE ? 0.3 : colorFor(name) === HOVER ? 0.15 : 0}
                 />
               )}
             </mesh>
