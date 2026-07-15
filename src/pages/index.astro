@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import HeroNozzle from '../components/HeroNozzle.astro';
 import StudyIndex from '../components/StudyIndex.astro';
+import PlaneShowcase from '../components/plane/PlaneShowcase.astro';
 import { contact } from '../data/contact';
 import { withBase } from '../lib/url';
 ---
@@ -23,6 +24,8 @@ import { withBase } from '../lib/url';
     </div>
     <HeroNozzle />
   </section>
+
+  <PlaneShowcase />
 
   <section class="wrap" id="etudes" aria-labelledby="h-etudes">
     <h2 class="display sec" id="h-etudes"><span class="accent">Index</span> des études <span class="count mono-label" data-counter="14">14</span></h2>
