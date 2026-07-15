@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF, Line } from '@react-three/drei';
 
 /* Airbus A380 réel : GLB issu d'un kit d'impression 3D (STL par pièce),
    optimisé (meshopt) et ré-assemblé ici. Chaque pièce imprimable était
@@ -166,6 +166,48 @@ export default function PlaneModel(p: PartProps) {
               )}
             </mesh>
           ))}
+          {/* Streamlines pour les winglets */}
+          {name === 'winglet_left' && (
+            <group>
+              <Line points={[[0, 0, 0], [0, -100, 0], [0, -200, 0]]} color="#00F0FF" lineWidth={2} transparent opacity={0.6} />
+              <Line points={[[-4, 0, -4], [-4, -80, -4], [-4, -150, -4]]} color="#00F0FF" lineWidth={1.5} transparent opacity={0.3} />
+            </group>
+          )}
+          {name === 'winglet_right' && (
+            <group>
+              <Line points={[[0, 0, 0], [0, -100, 0], [0, -200, 0]]} color="#00F0FF" lineWidth={2} transparent opacity={0.6} />
+              <Line points={[[-4, 0, 4], [-4, -80, 4], [-4, -150, 4]]} color="#00F0FF" lineWidth={1.5} transparent opacity={0.3} />
+            </group>
+          )}
+          {name === 'fuselage_fwd' && (
+             <group>
+               {Array.from({ length: 12 }).map((_, i) => (
+                 <group key={`w1_${i}`}>
+                   <mesh position={[-18.5, -2, 50 + i * 7]}><sphereGeometry args={[1.2, 8, 8]}/><meshStandardMaterial color="#111" roughness={0} metalness={1} /></mesh>
+                   <mesh position={[18.5, -2, 50 + i * 7]}><sphereGeometry args={[1.2, 8, 8]}/><meshStandardMaterial color="#111" roughness={0} metalness={1} /></mesh>
+                   <mesh position={[-17.5, 9, 50 + i * 7]}><sphereGeometry args={[1.2, 8, 8]}/><meshStandardMaterial color="#111" roughness={0} metalness={1} /></mesh>
+                   <mesh position={[17.5, 9, 50 + i * 7]}><sphereGeometry args={[1.2, 8, 8]}/><meshStandardMaterial color="#111" roughness={0} metalness={1} /></mesh>
+                 </group>
+               ))}
+               {/* Cockpit local */}
+               <mesh position={[0, 9, 148]} rotation={[0.4, 0, 0]}>
+                 <sphereGeometry args={[7.5, 16, 16]} />
+                 <meshStandardMaterial color="#050505" roughness={0.1} metalness={0.9} />
+               </mesh>
+             </group>
+          )}
+          {name === 'fuselage_aft' && (
+             <group>
+               {Array.from({ length: 10 }).map((_, i) => (
+                 <group key={`w2_${i}`}>
+                   <mesh position={[-18.5, -2, 30 + i * 7]}><sphereGeometry args={[1.2, 8, 8]}/><meshStandardMaterial color="#111" roughness={0} metalness={1} /></mesh>
+                   <mesh position={[18.5, -2, 30 + i * 7]}><sphereGeometry args={[1.2, 8, 8]}/><meshStandardMaterial color="#111" roughness={0} metalness={1} /></mesh>
+                   <mesh position={[-17.5, 9, 30 + i * 7]}><sphereGeometry args={[1.2, 8, 8]}/><meshStandardMaterial color="#111" roughness={0} metalness={1} /></mesh>
+                   <mesh position={[17.5, 9, 30 + i * 7]}><sphereGeometry args={[1.2, 8, 8]}/><meshStandardMaterial color="#111" roughness={0} metalness={1} /></mesh>
+                 </group>
+               ))}
+             </group>
+          )}
         </group>
       ))}
       {/* zone pack ECS (carénage ventral, fondu dans le fuselage) :
