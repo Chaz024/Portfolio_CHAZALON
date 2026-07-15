@@ -1,33 +1,91 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { useGLTF } from '@react-three/drei';
 
-/* Avion de ligne procédural, rendu réaliste : peinture blanche vernie
-   (clearcoat) qui accroche les reflets de l'environnement studio,
-   nacelles métal, verrière et hublots en verre teinté. Chaque pièce
-   interactive porte un id (nacelle, aile, empennage, ecs, moteur). */
+/* Airbus A380 réel : GLB issu d'un kit d'impression 3D (STL par pièce),
+   optimisé (meshopt) et ré-assemblé ici. Chaque pièce imprimable était
+   posée à plat : la table T ci-dessous donne la transformation
+   d'assemblage (mm, repère avion : nez vers +z, y vers le haut).
+   Matériaux : peinture blanche vernie + nacelles métal, reflets studio. */
 
-const HULL = '#FBFBFA';
-const WING = '#DDE0E2';
+const WHITE = '#FBFBFA';
+const GREY = '#E3E5E7';
+const METAL = '#C9CDD3';
 const HOVER = '#FFB68C';
 const ACTIVE = '#FF4F00';
-const GLASS = '#14181d';
-const METAL = '#C9CDD3';
-const DIHEDRAL = 0.1;
+
+/** échelle mm → unités scène (l'avion fait ~350 mm → ~6,7 unités) */
+export const A380_SCALE = 0.019;
+
+interface Placement {
+  pos: [number, number, number];
+  rotDeg?: [number, number, number];
+  /** images des axes locaux [X', Y', Z'] (det +1) */
+  basis?: [number[], number[], number[]];
+  /** rotation résiduelle autour du z local (pièce imprimée en diagonale) */
+  twist?: number;
+}
+
+const T: Record<string, Placement> = {
+  fuselage_fwd: { pos: [0, 0, 0] },
+  fuselage_aft: { pos: [0, 0, 0], rotDeg: [0, 180, 0] },
+  // les deux ailes sont permutées : seule l'épaisseur (x local) est miroir
+  wing_left: { pos: [0, -10, 15], basis: [[0, -1, 0], [0, 0, -1], [1, 0, 0]], twist: 40 },
+  wing_right: { pos: [0, -10, 15], basis: [[0, 1, 0], [0, 0, -1], [-1, 0, 0]], twist: -40 },
+  hstab_left: { pos: [0, 8, -145], basis: [[0, -1, 0], [0, 0, -1], [1, 0, 0]], twist: 45 },
+  hstab_right: { pos: [0, 8, -145], basis: [[0, 1, 0], [0, 0, -1], [-1, 0, 0]], twist: -45 },
+  vert_stab: { pos: [0, 18, -130], basis: [[1, 0, 0], [0, 0, -1], [0, 1, 0]], twist: 45 },
+  engine_2: { pos: [64, -16, 60], rotDeg: [0, 180, 0] },
+  engine_3: { pos: [-64, -16, 60], rotDeg: [0, 180, 0] },
+  engine_1: { pos: [110, -9, 22], rotDeg: [0, 180, 0] },
+  engine_4: { pos: [-110, -9, 22], rotDeg: [0, 180, 0] },
+  winglet_right: { pos: [201, 2, -37], basis: [[0, 1, 0], [0, 0, 1], [1, 0, 0]] },
+  winglet_left: { pos: [-201, 2, -37], basis: [[0, -1, 0], [0, 0, 1], [-1, 0, 0]] },
+};
+
+/** pièce interactive portée par chaque node du GLB (null = fuselage, non interactif) */
+const PART_OF: Record<string, string | null> = {
+  fuselage_fwd: null,
+  fuselage_aft: null,
+  wing_left: 'aile',
+  wing_right: 'aile',
+  winglet_left: 'aile',
+  winglet_right: 'aile',
+  engine_1: 'nacelle',
+  engine_2: 'nacelle',
+  engine_3: 'moteur',
+  engine_4: 'moteur',
+  vert_stab: 'empennage',
+  hstab_left: 'empennage',
+  hstab_right: 'empennage',
+};
+
+const METAL_PARTS = new Set(['engine_1', 'engine_2', 'engine_3', 'engine_4']);
+
+function placementMatrix(t: Placement): THREE.Matrix4 {
+  const M = new THREE.Matrix4();
+  if (t.basis) {
+    const [X, Y, Z] = t.basis.map((v) => new THREE.Vector3(...(v as [number, number, number])));
+    M.makeBasis(X, Y, Z);
+    if (t.twist) M.multiply(new THREE.Matrix4().makeRotationZ((t.twist * Math.PI) / 180));
+  } else if (t.rotDeg) {
+    const [x, y, z] = t.rotDeg.map((d) => (d * Math.PI) / 180);
+    M.makeRotationFromEuler(new THREE.Euler(x, y, z));
+  }
+  M.setPosition(new THREE.Vector3(...t.pos));
+  return M;
+}
 
 interface PartProps {
   active: string | null;
   hovered: string | null;
   onHover: (id: string | null) => void;
   onSelect: (id: string) => void;
+  modelUrl: string;
 }
 
-function colorFor(id: string, active: string | null, hovered: string | null, base: string) {
-  if (active === id) return ACTIVE;
-  if (hovered === id) return HOVER;
-  return base;
-}
-
-function partHandlers(id: string, p: PartProps) {
+function partHandlers(id: string | null, p: PartProps) {
+  if (!id) return {};
   return {
     onPointerOver: (e: any) => {
       e.stopPropagation();
@@ -45,257 +103,83 @@ function partHandlers(id: string, p: PartProps) {
   };
 }
 
-/* peinture avion : blanc verni, reflets nets */
-function Paint({ color }: { color: string }) {
+export default function PlaneModel(p: PartProps) {
+  const gltf = useGLTF(p.modelUrl);
+
+  // extrait, pour chaque node nommé, ses meshes avec leur transform local
+  // (la quantization du GLB stocke un offset/scale sur le node : on le garde)
+  const parts = useMemo(() => {
+    const out: { name: string; items: { geo: THREE.BufferGeometry; matrix: THREE.Matrix4 }[] }[] = [];
+    for (const node of gltf.scene.children) {
+      if (!(node.name in T)) continue;
+      node.updateWorldMatrix(true, true);
+      const inv = node.parent!.matrixWorld.clone().invert();
+      const items: { geo: THREE.BufferGeometry; matrix: THREE.Matrix4 }[] = [];
+      node.traverse((c) => {
+        const mesh = c as THREE.Mesh;
+        if (mesh.isMesh) {
+          items.push({
+            geo: mesh.geometry,
+            matrix: inv.clone().multiply(mesh.matrixWorld),
+          });
+        }
+      });
+      out.push({ name: node.name, items });
+    }
+    return out;
+  }, [gltf]);
+
+  const colorFor = (name: string) => {
+    const id = PART_OF[name];
+    const base = METAL_PARTS.has(name) ? METAL : name.startsWith('fuselage') ? WHITE : GREY;
+    if (id && p.active === id) return ACTIVE;
+    if (id && p.hovered === id) return HOVER;
+    return base;
+  };
+
   return (
-    <meshPhysicalMaterial
-      color={color}
-      roughness={0.28}
-      metalness={0.05}
-      clearcoat={1}
-      clearcoatRoughness={0.12}
-      envMapIntensity={1.25}
-      side={THREE.DoubleSide}
-    />
-  );
-}
-
-function Glass() {
-  return (
-    <meshPhysicalMaterial
-      color={GLASS}
-      roughness={0.08}
-      metalness={0.4}
-      clearcoat={1}
-      clearcoatRoughness={0.05}
-      envMapIntensity={1.6}
-    />
-  );
-}
-
-/* Coque du fuselage : profil de révolution, nez pointu, queue effilée */
-function useHullGeometry() {
-  return useMemo(() => {
-    // points ordonnés en y croissant (queue → nez) : normales vers l'extérieur
-    const pts: THREE.Vector2[] = [
-      new THREE.Vector2(0.001, -4.0),
-      new THREE.Vector2(0.05, -3.92),
-      new THREE.Vector2(0.14, -3.55),
-      new THREE.Vector2(0.28, -2.9),
-      new THREE.Vector2(0.4, -2.2),
-      new THREE.Vector2(0.45, -1.5),
-      new THREE.Vector2(0.45, 1.2),
-      new THREE.Vector2(0.435, 1.85),
-      new THREE.Vector2(0.37, 2.36),
-      new THREE.Vector2(0.26, 2.76),
-      new THREE.Vector2(0.13, 3.06),
-      new THREE.Vector2(0.001, 3.3),
-    ];
-    return new THREE.LatheGeometry(pts, 96);
-  }, []);
-}
-
-/* Voilure en flèche avec cassure de bord de fuite (yehudi) */
-function useWingGeometry() {
-  return useMemo(() => {
-    const s = new THREE.Shape();
-    s.moveTo(0.3, 1.0);
-    s.lineTo(3.3, -0.65);
-    s.lineTo(3.3, -1.02);
-    s.lineTo(1.2, -0.95);
-    s.lineTo(0.3, -0.95);
-    s.closePath();
-    return new THREE.ExtrudeGeometry(s, { depth: 0.055, bevelEnabled: false });
-  }, []);
-}
-
-function useWingletGeometry() {
-  return useMemo(() => {
-    const s = new THREE.Shape();
-    s.moveTo(0, 0);
-    s.lineTo(0.42, 0);
-    s.lineTo(0.44, 0.42);
-    s.lineTo(0.3, 0.42);
-    s.closePath();
-    return new THREE.ExtrudeGeometry(s, { depth: 0.035, bevelEnabled: false });
-  }, []);
-}
-
-function useStabGeometry() {
-  return useMemo(() => {
-    const s = new THREE.Shape();
-    s.moveTo(0.1, 0.45);
-    s.lineTo(1.55, -0.25);
-    s.lineTo(1.55, -0.55);
-    s.lineTo(0.1, -0.4);
-    s.closePath();
-    return new THREE.ExtrudeGeometry(s, { depth: 0.05, bevelEnabled: false });
-  }, []);
-}
-
-function useFinGeometry() {
-  return useMemo(() => {
-    const s = new THREE.Shape();
-    s.moveTo(0, 0);
-    s.lineTo(1.6, 0);
-    s.lineTo(1.5, 1.3);
-    s.lineTo(0.95, 1.3);
-    s.closePath();
-    return new THREE.ExtrudeGeometry(s, { depth: 0.055, bevelEnabled: false });
-  }, []);
-}
-
-/* Nacelle de réacteur : capot profilé (lathe), soufflante sombre, cône */
-function usePodGeometry() {
-  return useMemo(() => {
-    const pts: THREE.Vector2[] = [
-      new THREE.Vector2(0.13, -0.72),
-      new THREE.Vector2(0.15, -0.6),
-      new THREE.Vector2(0.24, -0.36),
-      new THREE.Vector2(0.3, -0.08),
-      new THREE.Vector2(0.3, 0.32),
-      new THREE.Vector2(0.26, 0.52),
-    ];
-    return new THREE.LatheGeometry(pts, 48);
-  }, []);
-}
-
-function Engine({ side, id, p, pod }: { side: 1 | -1; id: string; p: PartProps; pod: THREE.LatheGeometry }) {
-  const color = colorFor(id, p.active, p.hovered, METAL);
-  const h = partHandlers(id, p);
-  return (
-    <group position={[1.32 * side, -0.36, 0.5]} {...h}>
-      <mesh geometry={pod} rotation-x={Math.PI / 2}>
+    <group scale={A380_SCALE} position={[0, 0.15, 0.05]}>
+      {parts.map(({ name, items }) => (
+        <group key={name} matrix={placementMatrix(T[name])} matrixAutoUpdate={false} {...partHandlers(PART_OF[name], p)}>
+          {items.map((it, i) => (
+            <mesh key={i} geometry={it.geo} matrix={it.matrix} matrixAutoUpdate={false}>
+              {METAL_PARTS.has(name) ? (
+                <meshPhysicalMaterial
+                  color={colorFor(name)}
+                  roughness={0.24}
+                  metalness={0.85}
+                  envMapIntensity={1.3}
+                />
+              ) : (
+                <meshPhysicalMaterial
+                  color={colorFor(name)}
+                  roughness={0.3}
+                  metalness={0.05}
+                  clearcoat={1}
+                  clearcoatRoughness={0.12}
+                  envMapIntensity={1.25}
+                />
+              )}
+            </mesh>
+          ))}
+        </group>
+      ))}
+      {/* zone pack ECS (carénage ventral, fondu dans le fuselage) :
+          fantôme cliquable qui s'encre au survol/à la sélection */}
+      <mesh
+        position={[0, -14, 5]}
+        scale={[30, 16, 95]}
+        {...partHandlers('ecs', p)}
+      >
+        <sphereGeometry args={[1, 28, 18]} />
         <meshPhysicalMaterial
-          color={color}
-          roughness={0.22}
-          metalness={0.9}
-          envMapIntensity={1.3}
-          side={THREE.DoubleSide}
+          color={ACTIVE}
+          transparent
+          opacity={p.active === 'ecs' ? 0.4 : p.hovered === 'ecs' ? 0.25 : 0}
+          roughness={0.5}
+          depthWrite={false}
         />
       </mesh>
-      {/* soufflante + cône */}
-      <mesh rotation-x={Math.PI / 2} position={[0, 0, 0.47]}>
-        <circleGeometry args={[0.25, 40]} />
-        <meshStandardMaterial color="#0d0f12" roughness={0.5} metalness={0.6} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh rotation-x={-Math.PI / 2} position={[0, 0, 0.47]}>
-        <coneGeometry args={[0.07, 0.14, 24]} />
-        <meshStandardMaterial color={METAL} roughness={0.3} metalness={0.9} />
-      </mesh>
-      {/* tuyère primaire */}
-      <mesh rotation-x={Math.PI / 2} position={[0, 0.02, -0.84]}>
-        <cylinderGeometry args={[0.12, 0.07, 0.26, 32]} />
-        <meshStandardMaterial color="#8a8d93" roughness={0.35} metalness={1} />
-      </mesh>
-      {/* mât */}
-      <mesh position={[0, 0.3, -0.12]} rotation-x={0.25}>
-        <boxGeometry args={[0.06, 0.34, 0.55]} />
-        <Paint color={WING} />
-      </mesh>
-    </group>
-  );
-}
-
-function Wing({
-  side,
-  geo,
-  winglet,
-  color,
-  handlers,
-}: {
-  side: 1 | -1;
-  geo: THREE.ExtrudeGeometry;
-  winglet: THREE.ExtrudeGeometry;
-  color: string;
-  handlers: ReturnType<typeof partHandlers>;
-}) {
-  return (
-    <group scale={[side, 1, 1]}>
-      <group rotation-z={DIHEDRAL} {...handlers}>
-        <mesh geometry={geo} rotation-x={Math.PI / 2} position={[0, -0.16, 0]}>
-          <Paint color={color} />
-        </mesh>
-        {/* winglet incliné vers l'extérieur */}
-        <mesh
-          geometry={winglet}
-          rotation={[0, Math.PI / 2, -0.35]}
-          position={[3.24, -0.14, -0.62]}
-        >
-          <Paint color={color} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-export default function PlaneModel(p: PartProps) {
-  const hull = useHullGeometry();
-  const wing = useWingGeometry();
-  const winglet = useWingletGeometry();
-  const stab = useStabGeometry();
-  const fin = useFinGeometry();
-  const pod = usePodGeometry();
-
-  const wingColor = colorFor('aile', p.active, p.hovered, WING);
-  const empColor = colorFor('empennage', p.active, p.hovered, WING);
-  const ecsColor = colorFor('ecs', p.active, p.hovered, '#E9EAEA');
-  const wingH = partHandlers('aile', p);
-  const empH = partHandlers('empennage', p);
-  const ecsH = partHandlers('ecs', p);
-
-  return (
-    <group>
-      {/* fuselage */}
-      <mesh geometry={hull} rotation-x={Math.PI / 2}>
-        <Paint color={HULL} />
-      </mesh>
-      {/* bande hublots + cheatline orange */}
-      <mesh position={[0, 0.14, 0.15]}>
-        <boxGeometry args={[0.905, 0.045, 3.4]} />
-        <Glass />
-      </mesh>
-      <mesh position={[0, 0.02, 0.15]}>
-        <boxGeometry args={[0.906, 0.022, 3.4]} />
-        <Paint color={ACTIVE} />
-      </mesh>
-      {/* pare-brise cockpit */}
-      <mesh position={[0, 0.13, 2.4]} rotation-x={-0.2}>
-        <boxGeometry args={[0.34, 0.09, 0.26]} />
-        <Glass />
-      </mesh>
-
-      {/* voilure (pièce : aile) */}
-      <Wing side={1} geo={wing} winglet={winglet} color={wingColor} handlers={wingH} />
-      <Wing side={-1} geo={wing} winglet={winglet} color={wingColor} handlers={wingH} />
-
-      {/* empennage : stabilisateurs + dérive */}
-      <group {...empH}>
-        <mesh geometry={stab} rotation-x={Math.PI / 2} position={[0, 0.15, -3.15]}>
-          <Paint color={empColor} />
-        </mesh>
-        <mesh
-          geometry={stab}
-          rotation-x={Math.PI / 2}
-          position={[0, 0.15, -3.15]}
-          scale={[-1, 1, 1]}
-        >
-          <Paint color={empColor} />
-        </mesh>
-        <mesh geometry={fin} rotation-y={Math.PI / 2} position={[-0.028, 0.25, -2.35]}>
-          <Paint color={empColor} />
-        </mesh>
-      </group>
-
-      {/* carénage ventral / pack ECS */}
-      <mesh position={[0, -0.38, 0.1]} scale={[1.1, 0.42, 2.5]} {...ecsH}>
-        <sphereGeometry args={[0.5, 40, 24]} />
-        <Paint color={ecsColor} />
-      </mesh>
-
-      {/* moteurs : droit = nacelle (acoustique), gauche = moteur/tuyère */}
-      <Engine side={1} id="nacelle" p={p} pod={pod} />
-      <Engine side={-1} id="moteur" p={p} pod={pod} />
     </group>
   );
 }

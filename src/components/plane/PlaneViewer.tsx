@@ -20,10 +20,11 @@ export interface PartData {
 interface Props {
   parts: PartData[];
   whole: { label: string; studies: StudyRef[] };
+  modelUrl: string;
 }
 
-const HOME_POS: [number, number, number] = [6.8, 2.4, 7.2];
-const HOME_TGT: [number, number, number] = [0, 0, -0.2];
+const HOME_POS: [number, number, number] = [7.6, 2.7, 7.9];
+const HOME_TGT: [number, number, number] = [0, 0.1, -0.2];
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -44,6 +45,7 @@ function Scene({
   setActive,
   setHovered,
   reduced,
+  modelUrl,
 }: {
   parts: PartData[];
   active: string | null;
@@ -51,6 +53,7 @@ function Scene({
   setActive: (id: string | null) => void;
   setHovered: (id: string | null) => void;
   reduced: boolean;
+  modelUrl: string;
 }) {
   const controls = useRef<CameraControls>(null);
   const userMoved = useRef(false);
@@ -91,6 +94,7 @@ function Scene({
         hovered={hovered}
         onHover={setHovered}
         onSelect={(id) => setActive(id === active ? null : id)}
+        modelUrl={modelUrl}
       />
       {parts.map((p) => (
         <Html
@@ -152,7 +156,7 @@ function CardStudies({ part }: { part: { label: string; studies: StudyRef[] } })
   );
 }
 
-export default function PlaneViewer({ parts, whole }: Props) {
+export default function PlaneViewer({ parts, whole, modelUrl }: Props) {
   const [active, setActive] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const reduced = usePrefersReducedMotion();
@@ -184,7 +188,13 @@ export default function PlaneViewer({ parts, whole }: Props) {
             setActive(null);
           }}
         >
-          <Suspense fallback={null}>
+          <Suspense
+            fallback={
+              <Html center wrapperClass="pv-hs-wrap">
+                <span className="pv-loading">Chargement du modèle…</span>
+              </Html>
+            }
+          >
             <Scene
               parts={parts}
               active={active}
@@ -192,6 +202,7 @@ export default function PlaneViewer({ parts, whole }: Props) {
               setActive={setActive}
               setHovered={setHovered}
               reduced={reduced}
+              modelUrl={modelUrl}
             />
           </Suspense>
         </Canvas>
