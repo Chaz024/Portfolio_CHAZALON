@@ -55,6 +55,7 @@ const indexPath = withBase('/etudes');
         <span style={`--i:${i}`}></span>
       ))}
     </div>
+    <div class="curtain-sweep"></div>
     <div class="curtain-stack"></div>
     <span class="curtain-tag mono-label" aria-hidden="true">Index des études</span>
   </div>
@@ -74,6 +75,7 @@ const indexPath = withBase('/etudes');
   .curtain-cols{position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);}
   .curtain-cols span{background:var(--accent);transform:translateY(101%);will-change:transform;}
   .curtain-cols span:nth-child(even){background:var(--ink);}
+  .curtain-sweep{position:absolute;inset:0;background:var(--ink);transform:translateX(101%);will-change:transform;}
   .curtain-stack{position:absolute;inset:0;}
   .curtain-layer{position:absolute;inset:0;background-size:cover;background-position:center;
     background-color:var(--ink);transform:translateY(101%);will-change:transform;
@@ -84,5 +86,6 @@ const indexPath = withBase('/etudes');
   .curtain:not(.is-image) .curtain-stack,
   .curtain:not(.is-image) .curtain-tag{display:none;}
   .curtain:not(.is-solid) .curtain-cols{display:none;}
+  .curtain:not(.is-sweep) .curtain-sweep{display:none;}
   @media (prefers-reduced-motion:reduce){ .curtain{display:none;} }
 </style>

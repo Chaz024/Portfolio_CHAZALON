@@ -42,21 +42,34 @@ export function initCurtain(): void {
   // astro:page-load tire AUSSI au chargement initial (pas astro:before-preparation) :
   // sans ce garde, le rideau flasherait plein écran à chaque première visite.
   let entered = false;
-  let mode: 'solid' | 'image' = 'solid';
+  let mode: string = 'solid';
   let imgLayers: HTMLElement[] = [];
   let cover: Promise<unknown> = Promise.resolve();
+
+  let sweepDir = 1;
+  const sweepEl = c.querySelector<HTMLElement>('.curtain-sweep')!;
 
   document.addEventListener('astro:before-preparation', (e) => {
     entered = true;
     const ev = e as unknown as { to?: URL; loader?: () => Promise<unknown> };
     const to = (ev.to?.pathname || '').replace(/\/$/, '');
-    mode = to === indexPath && covers.length >= 3 ? 'image' : 'solid';
+    
+    // Pool of random transitions for non-index pages
+    const transitions = ['solid', 'sweep', 'sweep-reverse', 'solid-down'];
+    const randomTransition = transitions[Math.floor(Math.random() * transitions.length)];
+    
+    mode = to === indexPath && covers.length >= 3 ? 'image' : randomTransition;
     c.classList.toggle('is-image', mode === 'image');
-    c.classList.toggle('is-solid', mode === 'solid');
+    c.classList.toggle('is-solid', mode === 'solid' || mode === 'solid-down');
+    c.classList.toggle('is-sweep', mode === 'sweep' || mode === 'sweep-reverse');
 
-    if (mode === 'solid') {
-      // colonnes qui montent en quinconce — bref et net
-      cols.forEach((el) => { el.style.transform = 'translateY(101%)'; });
+    if (mode === 'sweep' || mode === 'sweep-reverse') {
+      sweepDir = mode === 'sweep' ? 1 : -1;
+      sweepEl.style.transform = `translateX(${sweepDir * 101}%)`;
+      cover = animate(sweepEl, { transform: 'translateX(0%)' }, { duration: 0.4, ease: EASE }).finished;
+    } else if (mode === 'solid' || mode === 'solid-down') {
+      const startY = mode === 'solid-down' ? '-101%' : '101%';
+      cols.forEach((el) => { el.style.transform = `translateY(${startY})`; });
       cover = animate(
         cols,
         { transform: 'translateY(0%)' },
@@ -96,8 +109,11 @@ export function initCurtain(): void {
     // ne découvrir qu'une fois le rideau entièrement monté (chaque calque a eu
     // son temps d'affichage), même si la page d'arrivée est prête plus tôt.
     cover.then(() => {
-      if (mode === 'solid') {
-        animate(cols, { transform: 'translateY(-101%)' }, { duration: 0.42, delay: stagger(0.05), ease: EASE })
+      if (mode === 'sweep' || mode === 'sweep-reverse') {
+        animate(sweepEl, { transform: `translateX(${-sweepDir * 101}%)` }, { duration: 0.4, ease: EASE });
+      } else if (mode === 'solid' || mode === 'solid-down') {
+        const endY = mode === 'solid-down' ? '101%' : '-101%';
+        animate(cols, { transform: `translateY(${endY})` }, { duration: 0.42, delay: stagger(0.05), ease: EASE })
           .finished.then(() => { cols.forEach((el) => { el.style.transform = 'translateY(101%)'; }); });
       } else {
         animate(tag, { opacity: 0 }, { duration: 0.25 });

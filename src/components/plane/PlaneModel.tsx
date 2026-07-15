@@ -190,7 +190,7 @@ export default function PlaneModel(p: PartProps) {
                  </group>
                ))}
                {/* Cockpit local */}
-               <mesh position={[0, 9, 148]} rotation={[0.4, 0, 0]}>
+               <mesh position={[0, 6.5, 150]} rotation={[0.3, 0, 0]}>
                  <sphereGeometry args={[7.5, 16, 16]} />
                  <meshStandardMaterial color="#050505" roughness={0.1} metalness={0.9} />
                </mesh>
