@@ -89,12 +89,12 @@ export function initCurtain(): void {
       animate(tag, { opacity: [0, 1] }, { duration: 0.4, delay: 0.4 });
       // chaque calque monte par-dessus le précédent et reste ~0.6 s avant que
       // le suivant ne le recouvre (délais explicites : dwell fiable)
-      const GAP = 0.45;
-      let last = animate(imgLayers[0], { transform: ['translateY(101%)', 'translateY(0%)'] }, { duration: 0.45, ease: EASE });
+      const GAP = 0.22;
+      let last = animate(imgLayers[0], { transform: ['translateY(101%)', 'translateY(0%)'] }, { duration: 0.3, ease: EASE });
       imgLayers.slice(1).forEach((el, i) => {
-        last = animate(el, { transform: ['translateY(101%)', 'translateY(0%)'] }, { duration: 0.45, delay: GAP * (i + 1), ease: EASE });
+        last = animate(el, { transform: ['translateY(101%)', 'translateY(0%)'] }, { duration: 0.3, delay: GAP * (i + 1), ease: EASE });
       });
-      cover = last.finished.then(() => new Promise((r) => setTimeout(r, 300))); // dwell final
+      cover = last.finished.then(() => new Promise((r) => setTimeout(r, 150))); // dwell final
     }
 
     // retenir la bascule du DOM tant que le rideau n'a pas couvert l'écran :
@@ -116,8 +116,8 @@ export function initCurtain(): void {
         animate(cols, { transform: `translateY(${endY})` }, { duration: 0.42, delay: stagger(0.05), ease: EASE })
           .finished.then(() => { cols.forEach((el) => { el.style.transform = 'translateY(101%)'; }); });
       } else {
-        animate(tag, { opacity: 0 }, { duration: 0.25 });
-        animate(imgLayers, { transform: 'translateY(-101%)' }, { duration: 0.62, delay: stagger(0.05), ease: EASE })
+        animate(tag, { opacity: 0 }, { duration: 0.2 });
+        animate(imgLayers, { transform: 'translateY(-101%)' }, { duration: 0.4, delay: stagger(0.04), ease: EASE })
           .finished.then(() => {
             stack.querySelectorAll('.curtain-layer').forEach((n) => n.remove());
             imgLayers = [];
