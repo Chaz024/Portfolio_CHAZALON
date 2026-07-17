@@ -1,0 +1,37 @@
+---
+num: 7
+title: "Calcul HPC — Poisson 2D/3D en MPI"
+cycle: "3A"
+periode: "2025 — 3ᵉ année"
+methods: ["Différences finies", "Jacobi", "SPMD points fantômes"]
+tools: ["Fortran/MPI", "CALMIP Turpan", "GPU"]
+metric: "GPU plus efficace que CPU sur grandes matrices (scalabilité mesurée)"
+summary: "Poisson 2D/3D parallélisé en MPI sur le supercalculateur Turpan, scalabilité CPU/GPU mesurée."
+pdf: "/pdf/hpc-poisson-mpi.pdf"
+pdfSize: "0,7 Mo"
+featured: true
+plates:
+  - src: "/plates/hpc-poisson-mpi/hero.jpg"
+    caption: "Réseau de calcul massivement parallèle (Concept)"
+    alt: "Nœuds de calcul lumineux interconnectés illustrant le Calcul Haute Performance."
+---
+
+{/* Planches : à déclarer UNIQUEMENT dans plates[] ci-dessus (num uniques par page).
+    Extraction : python scripts/extract_pages.py public/pdf/hpc-poisson-mpi.pdf hpc-poisson-mpi
+    Sources : html5up-landed/calcul-scientifique-hpc.html + __pdf_extracts/hpc.txt */}
+
+## Contexte
+
+La maîtrise du calcul parallèle est aujourd'hui indispensable pour traiter des problèmes physiques de grande dimension. Ce projet visait à résoudre numériquement l'équation de Poisson (2D et 3D) sur le supercalculateur Turpan (CALMIP) afin d'évaluer les performances et la scalabilité d'une parallélisation en MPI.
+
+## Démarche
+
+Le domaine a été discrétisé par différences finies et résolu via la méthode itérative de Jacobi. J'ai déployé une approche SPMD (*Single Program Multiple Data*) avec une décomposition de domaine par sous-blocs. Les échanges aux interfaces ont été gérés rigoureusement grâce aux points fantômes (*ghost cells*). Les temps de restitution et l'énergie consommée ont ensuite été mesurés sur CPU et GPU.
+
+## Résultats
+
+En 2D, l'accélération (Speed-up) est quasi idéale jusqu'à 40 processus. En 3D, sur de petits maillages ($N=504$), les latences de communication dominent et brident le speed-up. Sur de grands maillages ($N=2040$), la charge locale masque les temps de communication, rendant la parallélisation très efficace. La comparaison finale prouve que si le CPU reste performant sur les petits cas, le GPU s'impose drastiquement sur les très grandes matrices, réduisant le temps de calcul tout en divisant la consommation énergétique par 3.
+
+## Ce que ça démontre
+
+Une solide compréhension de l'architecture des supercalculateurs, la maîtrise des communications MPI, de l'équilibrage de charge, et une capacité d'analyse critique des métriques de performance (scalabilité forte, efficience énergétique) pour choisir la bonne architecture matérielle.

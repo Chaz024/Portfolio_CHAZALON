@@ -1,0 +1,37 @@
+---
+num: 6
+title: "Écoulements compressibles — chocs et tuyères"
+cycle: "3A"
+periode: "2025 — 3ᵉ année"
+methods: ["Équations d'Euler", "Rankine-Hugoniot", "Volumes finis upwind"]
+tools: ["Python"]
+metric: "Tuyères convergentes-divergentes et chocs résolus sous contrainte CFL"
+summary: "Euler compressible : relations isentropiques, chocs, détentes et schémas volumes finis upwind."
+pdf: null
+pdfSize: null
+featured: false
+plates:
+  - src: "/plates/ecoulements-compressibles/hero.jpg"
+    caption: "Dynamique des fluides compressibles"
+    alt: "Visualisation d'ondes de choc et de flux supersoniques."
+---
+
+{/* Travail dirigé sans rapport dédié : pas de PDF, pas de planches (sauf si tu en produis).
+    Source : html5up-landed/projets.html (fiche TD Compressible, lignes ~109-115).
+    Clin d'œil possible : la tuyère interactive de l'accueil vient de ce sujet. */}
+
+## Contexte
+
+La modélisation des écoulements compressibles est essentielle pour l'aéronautique à haute vitesse. Ce projet visait à développer un solveur 1D permettant de simuler des phénomènes complexes comme les ondes de choc et les détentes, puis de l'appliquer à l'étude d'une tuyère convergente-divergente.
+
+## Démarche
+
+J'ai implémenté un solveur basé sur les équations d'Euler 1D. La résolution numérique a nécessité l'utilisation de schémas décentrés (upwind) pour capturer correctement les discontinuités (chocs, contacts, détentes) tout en respectant la condition de stabilité CFL. Le couplage avec les relations de Rankine-Hugoniot a permis de valider la physique des ondes simulées.
+
+## Résultats
+
+Le solveur a modélisé avec succès le tube à choc de Sod, capturant précisément l'onde de choc, la discontinuité de contact et le faisceau de détente. Appliqué à une tuyère convergente-divergente, le code a reproduit l'accélération transsonique et les variations du nombre de Mach, validant ainsi la robustesse de l'approche numérique.
+
+## Ce que ça démontre
+
+Une maîtrise des phénomènes compressibles, de la théorie des caractéristiques et des schémas numériques avancés (volumes finis, schémas de flux) pour la résolution d'équations hyperboliques non linéaires.

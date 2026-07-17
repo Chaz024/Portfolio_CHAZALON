@@ -1,0 +1,37 @@
+---
+num: 10
+title: "Écoulement autour d'un NACA 4412 — Fluent"
+cycle: "ENSEEIHT"
+periode: "2024"
+methods: ["RANS", "Comparaison aile mince/Rayleigh/Newton"]
+tools: ["Ansys Fluent"]
+metric: "Écarts théorie/simulation quantifiés sur portance et isopressions"
+summary: "Profil NACA 4412 sous Fluent : vitesses, isopressions et confrontation aux théories classiques."
+pdf: "/pdf/profil-naca-fluent.pdf"
+pdfSize: "3,1 Mo"
+featured: false
+plates:
+  - src: "/plates/profil-naca-fluent/hero.jpg"
+    caption: "Simulation CFD autour d'un profil NACA"
+    alt: "Écoulement aérodynamique et traînées de sillage sur un profil d'aile."
+---
+
+{/* Planches : à déclarer UNIQUEMENT dans plates[] ci-dessus (num uniques par page).
+    Extraction : python scripts/extract_pages.py public/pdf/profil-naca-fluent.pdf profil-naca-fluent
+    Source : html5up-landed/analyse-fluent.html */}
+
+## Contexte
+
+L'optimisation des profils d'aile repose largement sur la simulation numérique. Ce projet consistait à analyser les performances aérodynamiques d'un profil NACA classique à l'aide d'un code CFD industriel (ANSYS Fluent) et à confronter ces résultats numériques aux théories analytiques fondamentales.
+
+## Démarche
+
+Après avoir généré un maillage structuré de haute qualité autour du profil, j'ai configuré un modèle RANS (Reynolds-Averaged Navier-Stokes) sous Fluent. J'ai post-traité les champs de vitesse et les isopressions pour différentes incidences afin d'extraire de manière précise les coefficients de portance et de traînée.
+
+## Résultats
+
+Les simulations Fluent ont fourni des résultats très proches de la réalité expérimentale pour les petits angles d'incidence. La comparaison avec la théorie des profils minces, ainsi que les approximations de Rayleigh et Newton, a permis de chiffrer précisément les écarts. Les limites des modèles analytiques (notamment au-delà du décrochage) ont été clairement identifiées.
+
+## Ce que ça démontre
+
+La maîtrise d'une chaîne de calcul CFD industrielle (maillage, paramétrage du solveur RANS, post-traitement) et la capacité à prendre du recul critique sur les résultats numériques en les confrontant à la théorie fondamentale de l'aérodynamique.

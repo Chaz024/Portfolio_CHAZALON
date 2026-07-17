@@ -1,0 +1,37 @@
+---
+num: 2
+title: "Aérodynamique — aile en effet de sol"
+cycle: "3A"
+periode: "2025 — 3ᵉ année"
+methods: ["Vortex Lattice Method", "Biot-Savart", "Méthode des images"]
+tools: ["MATLAB"]
+metric: "Traînée induite réduite par l'upwash de l'image — correction visqueuse de Mondal"
+summary: "Modèle potentiel d'une aile proche du sol : VLM, méthode des images et correction visqueuse."
+pdf: "/pdf/aerodynamique-effet-sol.pdf"
+pdfSize: "0,5 Mo"
+featured: false
+plates:
+  - src: "/plates/aerodynamique-effet-sol/hero.jpg"
+    caption: "Aérodynamique d'un profil proche du sol (Simulation conceptuelle)"
+    alt: "Profil d'aile profilé fendant l'air près d'une surface, avec des lignes de courant lumineuses."
+---
+
+{/* Planches : à déclarer UNIQUEMENT dans plates[] ci-dessus (num uniques par page).
+    Extraction : python scripts/extract_pages.py public/pdf/aerodynamique-effet-sol.pdf aerodynamique-effet-sol
+    Sources : html5up-landed/aerodynamique-effet-sol.html + __pdf_extracts/aerodynamique.txt */}
+
+## Contexte
+
+L'effet de sol est un phénomène aérodynamique crucial lors des phases de décollage et d'atterrissage, modifiant significativement les performances d'une aile. Ce projet de 3ᵉ année a pour but de modéliser mathématiquement et de simuler numériquement l'influence de la proximité du sol sur la portance et la traînée.
+
+## Démarche
+
+J'ai développé un code sous MATLAB basé sur la méthode des réseaux de tourbillons (VLM - Vortex Lattice Method) et la loi de Biot-Savart. L'effet de sol a été pris en compte via la méthode des images. Le modèle potentiel a ensuite été enrichi par l'intégration d'une correction visqueuse (modèle de Mondal) pour se rapprocher de la réalité physique.
+
+## Résultats
+
+Les résultats chiffrés démontrent une réduction notable de la traînée induite à mesure que l'aile se rapproche du sol, provoquée par la déflexion verticale du flux (*upwash*) induite par l'aile image. La correction de Mondal permet en outre de mieux borner la portance à très faible hauteur en simulant les effets de couche limite.
+
+## Ce que ça démontre
+
+Maîtrise des méthodes de modélisation potentielle (VLM, méthode des images), implémentation algorithmique rigoureuse sous MATLAB, et esprit critique pour corriger les limites d'un modèle non-visqueux face à des données réelles.

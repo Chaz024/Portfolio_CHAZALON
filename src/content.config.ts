@@ -4,7 +4,7 @@ import { glob } from 'astro/loaders';
 const etudes = defineCollection({
   loader: glob({ pattern: '**/*.mdx', base: './src/content/etudes' }),
   schema: z.object({
-    num: z.number().int().min(1).max(5),
+    num: z.number().int().min(1).max(11),
     title: z.string(),
     cycle: z.enum(['3A', 'ENSEEIHT', 'CPGE']),
     periode: z.string(),            // ex. "2025 — 3ᵉ année"
